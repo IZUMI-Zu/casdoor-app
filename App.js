@@ -32,6 +32,7 @@ const App = () => {
         <NavigationContainer>
           <PaperProvider>
             <Header />
+            <></>
             <NavigationBar />
           </PaperProvider>
         </NavigationContainer>
