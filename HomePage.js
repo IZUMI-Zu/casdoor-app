@@ -13,10 +13,11 @@
 // limitations under the License.
 
 import React, {useContext, useEffect, useRef, useState} from "react";
-import {Dimensions, FlatList, RefreshControl, Text, TouchableOpacity, View} from "react-native";
-import {Divider, IconButton, List, Modal, Portal} from "react-native-paper";
+import {Dimensions, FlatList, RefreshControl, TouchableOpacity, View} from "react-native";
+import {Divider, IconButton, List, Modal, Portal, Text} from "react-native-paper";
 import {GestureHandlerRootView, Swipeable} from "react-native-gesture-handler";
 import {CountdownCircleTimer} from "react-native-countdown-circle-timer";
+import Toast from "react-native-root-toast";
 
 import SearchBar from "./SearchBar";
 import EnterAccountDetails from "./EnterAccountDetails";
@@ -66,6 +67,8 @@ export default function HomePage() {
           onUpdate
         ));
         setAccountList(newAccountList);
+      } else if (syncedAccounts.error) {
+        Toast.show(syncedAccounts.error, {position: -80});
       }
     } finally {
       isSyncing.current = false;
@@ -202,11 +205,15 @@ export default function HomePage() {
               )}
             >
               <List.Item
-                style={{height: 80, alignItems: "center", justifyContent: "center", marginLeft: 10}}
+                style={{
+                  height: 80,
+                  paddingVertical: 5,
+                  paddingHorizontal: 25,
+                }}
                 title={
-                  <View>
-                    <Text style={{fontSize: 20}}>{item.accountName}</Text>
-                    <Text style={{fontSize: 35, width: 180}}>{item.token}</Text>
+                  <View style={{flex: 1, justifyContent: "center"}}>
+                    <Text variant="titleMedium">{item.accountName}</Text>
+                    <Text variant="headlineSmall" style={{fontWeight: "bold"}}>{item.token}</Text>
                   </View>
                 }
                 left={(props) => (
@@ -214,24 +221,30 @@ export default function HomePage() {
                     source={{uri: item.issuer ? `https://cdn.casbin.org/img/social_${item.issuer.toLowerCase()}.png` : "https://cdn.casbin.org/img/social_default.png"}}
                     fallbackSource={{uri: "https://cdn.casbin.org/img/social_default.png"}}
                     size={60}
-                    style={{marginLeft: 10, marginRight: 10, borderRadius: 10, backgroundColor: "transparent"}}
+                    style={{
+                      marginRight: 15,
+                      borderRadius: 10,
+                      backgroundColor: "transparent",
+                    }}
                   />
                 )}
                 right={(props) => (
-                  <CountdownCircleTimer
-                    isPlaying={true}
-                    duration={30}
-                    initialRemainingTime={item.calculateCountdown()}
-                    colors={["#004777", "#0072A0", "#0099CC", "#FF6600", "#CC3300", "#A30000"]}
-                    colorsTime={[30, 24, 18, 12, 6, 0]}
-                    size={60}
-                    onComplete={() => {item.generateAndSetToken(); return {shouldRepeat: true};}}
-                    strokeWidth={5}
-                  >
-                    {({remainingTime}) => (
-                      <Text style={{fontSize: 20}}>{remainingTime}s</Text>
-                    )}
-                  </CountdownCircleTimer>
+                  <View style={{justifyContent: "center", alignItems: "center"}}>
+                    <CountdownCircleTimer
+                      isPlaying={true}
+                      duration={30}
+                      initialRemainingTime={item.calculateCountdown()}
+                      colors={["#004777", "#0072A0", "#0099CC", "#FF6600", "#CC3300", "#A30000"]}
+                      colorsTime={[30, 24, 18, 12, 6, 0]}
+                      size={60}
+                      onComplete={() => {item.generateAndSetToken(); return {shouldRepeat: true};}}
+                      strokeWidth={5}
+                    >
+                      {({remainingTime}) => (
+                        <Text style={{fontSize: 18, fontWeight: "bold"}}>{remainingTime}s</Text>
+                      )}
+                    </CountdownCircleTimer>
+                  </View>
                 )}
               />
             </Swipeable>

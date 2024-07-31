@@ -15,6 +15,7 @@
 import * as React from "react";
 import {PaperProvider} from "react-native-paper";
 import {NavigationContainer} from "@react-navigation/native";
+import {RootSiblingParent} from "react-native-root-siblings";
 import Header from "./Header";
 import NavigationBar from "./NavigationBar";
 import {UserProvider} from "./UserContext";
@@ -29,12 +30,14 @@ const App = () => {
   return (
     <CasdoorServerProvider value={{casdoorServer, setCasdoorServer}} >
       <UserProvider value={{userInfo, setUserInfo, token, setToken}} >
-        <NavigationContainer>
-          <PaperProvider>
-            <Header />
-            <NavigationBar />
-          </PaperProvider>
-        </NavigationContainer>
+        <RootSiblingParent>
+          <NavigationContainer>
+            <PaperProvider>
+              <Header />
+              <NavigationBar />
+            </PaperProvider>
+          </NavigationContainer>
+        </RootSiblingParent>
       </UserProvider>
     </CasdoorServerProvider>
   );

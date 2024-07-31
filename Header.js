@@ -13,17 +13,19 @@
 // limitations under the License.
 
 import * as React from "react";
-import {Appbar, Avatar, Button, Menu, Text} from "react-native-paper";
+import {Platform, StyleSheet, View} from "react-native";
+import {Appbar, Avatar, Menu, Text, TouchableRipple} from "react-native-paper";
 import UserContext from "./UserContext";
-import {StyleSheet, View} from "react-native";
 import CasdoorLoginPage, {CasdoorLogout} from "./CasdoorLoginPage";
 
 const Header = () => {
   const {userInfo, setUserInfo, setToken} = React.useContext(UserContext);
   const [showLoginPage, setShowLoginPage] = React.useState(false);
   const [menuVisible, setMenuVisible] = React.useState(false);
+
   const openMenu = () => setMenuVisible(true);
   const closeMenu = () => setMenuVisible(false);
+
   const handleMenuLogoutClicked = () => {
     handleCasdoorLogout();
     closeMenu();
@@ -32,63 +34,114 @@ const Header = () => {
   const handleCasdoorLogin = () => {
     setShowLoginPage(true);
   };
+
   const handleCasdoorLogout = () => {
     CasdoorLogout();
     setUserInfo(null);
     setToken(null);
   };
+
   const handleHideLoginPage = () => {
     setShowLoginPage(false);
   };
 
   return (
     <View>
-      <Appbar.Header style={{height: 40}}>
-        <View style={[StyleSheet.absoluteFill, {alignItems: "center", justifyContent: "center"}]} pointerEvents="box-none">
-          <Appbar.Content title="Casdoor" style={{
-            alignItems: "center",
-            justifyContent: "center",
-          }} />
-        </View>
-        <View style={{flex: 1}} />
-        <Menu
-          visible={menuVisible}
-          anchor={
-            <Button
-              style={{
-                marginRight: 2,
-                backgroundColor: "transparent",
-                height: 40,
-                flexDirection: "row",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-              onPress={userInfo === null ? handleCasdoorLogin : openMenu}
-            >
-              <View style={{flexDirection: "row", alignItems: "center"}}>
-                <View style={{position: "relative", height: 32, justifyContent: "flex-end", marginRight: 8}}>
-                  <Text variant="titleMedium">
+      <Appbar.Header style={styles.header}>
+        <Appbar.Content title="Casdoor" style={styles.title} />
+        <View style={styles.buttonWrapper}>
+          <Menu
+            visible={menuVisible}
+            onDismiss={closeMenu}
+            style={styles.menu}
+            contentStyle={styles.menuContent}
+            anchor={
+              <TouchableRipple
+                onPress={userInfo === null ? handleCasdoorLogin : openMenu}
+                style={styles.buttonContainer}
+                borderless={true}
+                borderRadius={20}
+              >
+                <View style={styles.buttonContent}>
+                  <Text style={styles.buttonText}>
                     {userInfo === null ? "Login" : userInfo.name}
                   </Text>
+                  {userInfo !== null && (
+                    <Avatar.Image
+                      size={24}
+                      source={{uri: userInfo.avatar}}
+                      style={styles.avatar}
+                    />
+                  )}
                 </View>
-                {userInfo !== null && (
-                  <Avatar.Image
-                    size={32}
-                    source={{uri: userInfo.avatar}}
-                    style={{backgroundColor: "transparent"}}
-                  />
-                )}
-              </View>
-            </Button>
-          }
-          onDismiss={closeMenu}
-        >
-          <Menu.Item onPress={() => handleMenuLogoutClicked()} title="Logout" />
-        </Menu>
+              </TouchableRipple>
+            }
+          >
+            <Menu.Item onPress={handleMenuLogoutClicked} title="Logout" />
+          </Menu>
+        </View>
       </Appbar.Header>
       {showLoginPage && <CasdoorLoginPage onWebviewClose={handleHideLoginPage} />}
     </View>
   );
 };
+
+const styles = StyleSheet.create({
+  header: {
+    height: 40,
+    justifyContent: "center",
+  },
+  title: {
+    position: "absolute",
+    left: 0,
+    right: 0,
+    alignItems: "center",
+  },
+  buttonWrapper: {
+    position: "absolute",
+    right: 10,
+    top: 0,
+    bottom: 0,
+    justifyContent: "center",
+  },
+  buttonContainer: {
+    borderRadius: 20,
+    overflow: "hidden",
+  },
+  buttonContent: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+  },
+  buttonText: {
+    ...Platform.select({
+      ios: {
+        fontSize: 16,
+      },
+      android: {
+        fontSize: 14,
+      },
+    }),
+    marginRight: 8,
+    fontWeight: "bold",
+  },
+  avatar: {
+    backgroundColor: "transparent",
+  },
+  menu: {
+    marginTop: 40,
+  },
+  menuContent: {
+    backgroundColor: "#FFFFFF",
+    borderRadius: 8,
+    elevation: 3,
+    shadowColor: "#000000",
+    shadowOffset: {width: 0, height: 2},
+    shadowOpacity: 0.2,
+    shadowRadius: 3,
+  },
+});
 
 export default Header;

@@ -14,12 +14,43 @@
 
 import {useCallback, useEffect, useState} from "react";
 import * as api from "./api";
-import useNetworkStatus from "./useNetworkStatus";
+import {useNetInfo} from "@react-native-community/netinfo";
 
 export const SYNC_STATUS = {
   ADD: "add",
   EDIT: "edit",
   DELETE: "delete",
+};
+
+const preMergeSyncData = (toSyncData) => {
+  return toSyncData.reduce((mergedData, currentItem) => {
+    const existingItemIndex = mergedData.findIndex(
+      item => item.data.accountName === currentItem.data.accountName
+        && item.data.secretKey === currentItem.data.secretKey
+        && item.data.issuer === currentItem.data.issuer
+    );
+
+    if (existingItemIndex !== -1) {
+      const existingItem = mergedData[existingItemIndex];
+      switch (currentItem.status) {
+      case SYNC_STATUS.EDIT:
+        mergedData[existingItemIndex] = {
+          ...existingItem,
+          ...currentItem,
+          data: {...existingItem.data, ...currentItem.data},
+        };
+        break;
+      case SYNC_STATUS.DELETE:
+        mergedData.splice(existingItemIndex, 1);
+        break;
+      default:
+        break;
+      }
+    } else {
+      mergedData.push(currentItem);
+    }
+    return mergedData;
+  }, []);
 };
 
 const applySync = (serverAccountList, toSyncData) => {
@@ -48,7 +79,7 @@ const applySync = (serverAccountList, toSyncData) => {
 const useSync = (userInfo, token, casdoorServer) => {
   const [toSyncData, setToSyncData] = useState([]);
   const [syncSignal, setSyncSignal] = useState(false);
-  const isConnected = useNetworkStatus();
+  const {isConnected} = useNetInfo();
   const [canSync, setCanSync] = useState(false);
 
   useEffect(() => {
@@ -66,7 +97,7 @@ const useSync = (userInfo, token, casdoorServer) => {
   }, []);
 
   const addToSyncData = useCallback((toSyncAccount, status, newAccountName = null) => {
-    setToSyncData([...toSyncData, {
+    setToSyncData(preMergeSyncData([...toSyncData, {
       data: {
         accountName: toSyncAccount.accountName,
         issuer: toSyncAccount.issuer,
@@ -74,11 +105,11 @@ const useSync = (userInfo, token, casdoorServer) => {
       },
       status,
       newAccountName: newAccountName || "",
-    }]);
+    }]));
   }, []);
 
   const syncAccounts = useCallback(async() => {
-    if (!canSync) {return {success: false, error: "Cannot sync"};}
+    if (!canSync) {return {success: false};}
 
     try {
       const {mfaAccounts: serverAccountList} = await api.getMfaAccounts(
@@ -89,7 +120,7 @@ const useSync = (userInfo, token, casdoorServer) => {
       );
 
       if (!serverAccountList) {
-        return {success: false, error: "Failed to get accounts"};
+        return {success: false, error: "Failed to get accounts, make sure you have enabled MFA on casdoor"};
       }
 
       if (toSyncData.length === 0) {
