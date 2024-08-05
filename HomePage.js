@@ -19,8 +19,8 @@ import {GestureHandlerRootView, Swipeable} from "react-native-gesture-handler";
 import {CountdownCircleTimer} from "react-native-countdown-circle-timer";
 import {useNetInfo} from "@react-native-community/netinfo";
 import {FlashList} from "@shopify/flash-list";
+import {useSQLiteContext} from "expo-sqlite/next";
 
-import useTotpStore from "./useTotpStore";
 import SearchBar from "./SearchBar";
 import EnterAccountDetails from "./EnterAccountDetails";
 import ScanQRCode from "./ScanQRCode";
@@ -28,6 +28,7 @@ import EditAccountDetails from "./EditAccountDetails";
 import AvatarWithFallback from "./AvatarWithFallback";
 import CasdoorServerContext from "./CasdoorServerContext";
 import UserContext from "./UserContext";
+import * as TotpDatabase from "./TotpDatabase";
 
 const {width, height} = Dimensions.get("window");
 const OFFSET_X = width * 0.45;
@@ -41,6 +42,7 @@ export default function HomePage() {
   const [filteredData, setFilteredData] = useState(accounts);
   const [showScanner, setShowScanner] = useState(false);
   const [showEditAccountModal, setShowEditAccountModal] = useState(false);
+  const [editingAccount, setEditingAccount] = useState(null);
   const [placeholder, setPlaceholder] = useState("");
   const [refreshing, setRefreshing] = useState(false);
   const {isConnected} = useNetInfo();
@@ -49,7 +51,21 @@ export default function HomePage() {
   const swipeableRef = useRef(null);
   const {userInfo, token} = useContext(UserContext);
   const {casdoorServer} = useContext(CasdoorServerContext);
-  const {accounts, createAccount, deleteAccount, updateAccount, syncWithCloud, updateToken, calculateCountdown} = useTotpStore();
+
+  const db = useSQLiteContext();
+  const [accounts, setAccounts] = useState([]);
+
+  useEffect(() => {
+    if (db) {
+      loadAccounts();
+    }
+  }, [db]);
+
+  const loadAccounts = async() => {
+    const loadedAccounts = await TotpDatabase.getAllAccounts(db);
+    setAccounts(loadedAccounts);
+    setFilteredData(loadedAccounts);
+  };
 
   useEffect(() => {
     setCanSync(isConnected && userInfo && casdoorServer);
@@ -61,29 +77,36 @@ export default function HomePage() {
 
   const onRefresh = async() => {
     setRefreshing(true);
-    if (canSync) {await syncWithCloud(userInfo, casdoorServer, token);}
+    // if (canSync) {await syncWithCloud(userInfo, casdoorServer, token);}
     setRefreshing(false);
   };
 
   const handleAddAccount = async(accountData) => {
-    await createAccount(accountData);
+    await TotpDatabase.insertAccount(db, accountData);
+    loadAccounts();
     closeEnterAccountModal();
   };
 
   const handleDeleteAccount = async(id) => {
-    await deleteAccount(id);
+    await TotpDatabase.deleteAccount(db, id);
+    loadAccounts();
   };
 
   const handleEditAccount = (account) => {
     closeSwipeableMenu();
+    setEditingAccount(account);
     setPlaceholder(account.accountName);
     setShowEditAccountModal(true);
   };
 
-  const onAccountEdit = async(id, newAccountName) => {
-    await updateAccount(id, {newAccountName});
-    setPlaceholder("");
-    closeEditAccountModal();
+  const onAccountEdit = async(newAccountName) => {
+    if (editingAccount) {
+      await TotpDatabase.updateAccountName(db, editingAccount.id, newAccountName);
+      loadAccounts();
+      setPlaceholder("");
+      setEditingAccount(null);
+      closeEditAccountModal();
+    }
   };
 
   const closeEditAccountModal = () => setShowEditAccountModal(false);
@@ -188,11 +211,15 @@ export default function HomePage() {
                     <CountdownCircleTimer
                       isPlaying={true}
                       duration={30}
-                      initialRemainingTime={calculateCountdown()}
+                      initialRemainingTime={TotpDatabase.calculateCountdown()}
                       colors={["#004777", "#0072A0", "#0099CC", "#FF6600", "#CC3300", "#A30000"]}
                       colorsTime={[30, 24, 18, 12, 6, 0]}
                       size={60}
-                      onComplete={() => {updateToken(item.id); return {shouldRepeat: true, delay: 0};}}
+                      onComplete={() => {
+                        TotpDatabase.updateToken(db, item.id);
+                        loadAccounts();
+                        return {shouldRepeat: true, delay: 0};
+                      }}
                       strokeWidth={5}
                     >
                       {({remainingTime}) => (

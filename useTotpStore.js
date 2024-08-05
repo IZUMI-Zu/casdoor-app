@@ -77,9 +77,9 @@ const useTotpStore = create((set, get) => ({
   setLoading: (isLoading) => set({isLoading}),
   setError: (error) => set({error}),
 
-  useAccounts: () => useLiveQuery(
-    db.select().from(schema.accountTable).where(sql`is_deleted = false`)
-  ),
+  useAccounts: () => {
+    useLiveQuery(db.select().from(schema.accountTable).where(sql`is_deleted = false`));
+  },
 
   createAccount: async({secret, accountName, issuer}) => {
     const {setLoading, setError} = get();
