@@ -13,14 +13,15 @@
 // limitations under the License.
 
 import * as React from "react";
-import {Alert, Platform, StyleSheet, View} from "react-native";
+import {Platform, StyleSheet, View} from "react-native";
 import {Appbar, Avatar, Menu, Text, TouchableRipple} from "react-native-paper";
-import UserContext from "./UserContext";
-import CasdoorLoginPage, {CasdoorLogout} from "./CasdoorLoginPage";
+import Toast from "react-native-toast-message";
+import CasdoorLoginPage from "./CasdoorLoginPage";
+import useStore from "./useStorage";
 import useSyncStore from "./useSyncStore";
 
 const Header = () => {
-  const {userInfo, setUserInfo, setToken} = React.useContext(UserContext);
+  const {userInfo, clearAll} = useStore();
   const [showLoginPage, setShowLoginPage] = React.useState(false);
   const [menuVisible, setMenuVisible] = React.useState(false);
   const syncError = useSyncStore(state => state.syncError);
@@ -38,9 +39,7 @@ const Header = () => {
   };
 
   const handleCasdoorLogout = () => {
-    CasdoorLogout();
-    setUserInfo(null);
-    setToken(null);
+    clearAll();
   };
 
   const handleHideLoginPage = () => {
@@ -48,7 +47,12 @@ const Header = () => {
   };
 
   const handleSyncErrorPress = () => {
-    Alert.alert("Sync Error", syncError || "An unknown error occurred during synchronization.");
+    Toast.show({
+      type: "error",
+      text1: "Sync Error",
+      text2: syncError || "An unknown error occurred during synchronization.",
+      autoHide: true,
+    });
   };
 
   return (

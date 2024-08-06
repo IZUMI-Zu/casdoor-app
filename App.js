@@ -15,35 +15,23 @@
 import * as React from "react";
 import {PaperProvider} from "react-native-paper";
 import {NavigationContainer} from "@react-navigation/native";
-import {RootSiblingParent} from "react-native-root-siblings";
+import Toast from "react-native-toast-message";
 import {SQLiteProvider} from "expo-sqlite";
 import Header from "./Header";
 import NavigationBar from "./NavigationBar";
-import {UserProvider} from "./UserContext";
-import {CasdoorServerProvider} from "./CasdoorServerContext";
 import {migrateDb} from "./TotpDatabase";
 
 const App = () => {
-
-  const [userInfo, setUserInfo] = React.useState(null);
-  const [token, setToken] = React.useState(null);
-  const [casdoorServer, setCasdoorServer] = React.useState(null);
-
   return (
-    <CasdoorServerProvider value={{casdoorServer, setCasdoorServer}} >
-      <UserProvider value={{userInfo, setUserInfo, token, setToken}} >
-        <SQLiteProvider databaseName="totp.db" onInit={migrateDb} enableChangeListener={true}>
-          <RootSiblingParent>
-            <NavigationContainer>
-              <PaperProvider>
-                <Header />
-                <NavigationBar />
-              </PaperProvider>
-            </NavigationContainer>
-          </RootSiblingParent>
-        </SQLiteProvider>
-      </UserProvider>
-    </CasdoorServerProvider>
+    <SQLiteProvider databaseName="totp.db" onInit={migrateDb} options={{enableChangeListener: true}}>
+      <NavigationContainer>
+        <PaperProvider>
+          <Header />
+          <NavigationBar />
+        </PaperProvider>
+      </NavigationContainer>
+      <Toast />
+    </SQLiteProvider>
   );
 };
 export default App;

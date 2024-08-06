@@ -12,23 +12,22 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import React, {useContext, useEffect, useRef, useState} from "react";
+import React, {useEffect, useRef, useState} from "react";
 import {Dimensions, RefreshControl, TouchableOpacity, View} from "react-native";
 import {Divider, IconButton, List, Modal, Portal, Text} from "react-native-paper";
 import {GestureHandlerRootView, Swipeable} from "react-native-gesture-handler";
 import {CountdownCircleTimer} from "react-native-countdown-circle-timer";
 import {useNetInfo} from "@react-native-community/netinfo";
 import {FlashList} from "@shopify/flash-list";
-import {useSQLiteContext} from "expo-sqlite/next";
+import * as SQLite from "expo-sqlite/next";
 
 import SearchBar from "./SearchBar";
 import EnterAccountDetails from "./EnterAccountDetails";
 import ScanQRCode from "./ScanQRCode";
 import EditAccountDetails from "./EditAccountDetails";
 import AvatarWithFallback from "./AvatarWithFallback";
-import CasdoorServerContext from "./CasdoorServerContext";
-import UserContext from "./UserContext";
 import * as TotpDatabase from "./TotpDatabase";
+import useStore from "./useStorage";
 
 const {width, height} = Dimensions.get("window");
 const OFFSET_X = width * 0.45;
@@ -46,25 +45,30 @@ export default function HomePage() {
   const [placeholder, setPlaceholder] = useState("");
   const [refreshing, setRefreshing] = useState(false);
   const {isConnected} = useNetInfo();
+  const [accounts, setAccounts] = useState([]);
   const [canSync, setCanSync] = useState(false);
 
   const swipeableRef = useRef(null);
-  const {userInfo, token} = useContext(UserContext);
-  const {casdoorServer} = useContext(CasdoorServerContext);
+  const {userInfo, casdoorServer, token} = useStore();
 
-  const db = useSQLiteContext();
-  const [accounts, setAccounts] = useState([]);
+  const db = SQLite.useSQLiteContext();
 
   useEffect(() => {
     if (db) {
       loadAccounts();
+      const subscription = SQLite.addDatabaseChangeListener((event) => {loadAccounts();});
+      return () => {if (subscription) {subscription.remove();}};
     }
   }, [db]);
 
   const loadAccounts = async() => {
-    const loadedAccounts = await TotpDatabase.getAllAccounts(db);
-    setAccounts(loadedAccounts);
-    setFilteredData(loadedAccounts);
+    try {
+      const loadedAccounts = await TotpDatabase.getAllAccounts(db);
+      setAccounts(loadedAccounts);
+      setFilteredData(loadedAccounts);
+    } catch (error) {
+      // console.error("Error loading accounts:", error);
+    }
   };
 
   useEffect(() => {
@@ -83,13 +87,11 @@ export default function HomePage() {
 
   const handleAddAccount = async(accountData) => {
     await TotpDatabase.insertAccount(db, accountData);
-    loadAccounts();
     closeEnterAccountModal();
   };
 
   const handleDeleteAccount = async(id) => {
     await TotpDatabase.deleteAccount(db, id);
-    loadAccounts();
   };
 
   const handleEditAccount = (account) => {
@@ -102,7 +104,6 @@ export default function HomePage() {
   const onAccountEdit = async(newAccountName) => {
     if (editingAccount) {
       await TotpDatabase.updateAccountName(db, editingAccount.id, newAccountName);
-      loadAccounts();
       setPlaceholder("");
       setEditingAccount(null);
       closeEditAccountModal();
@@ -217,7 +218,6 @@ export default function HomePage() {
                       size={60}
                       onComplete={() => {
                         TotpDatabase.updateToken(db, item.id);
-                        loadAccounts();
                         return {shouldRepeat: true, delay: 0};
                       }}
                       strokeWidth={5}

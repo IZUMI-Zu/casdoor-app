@@ -12,31 +12,27 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import React, {useContext, useState} from "react";
-import {Alert, ScrollView, Text, View} from "react-native";
+import React from "react";
+import {ScrollView, Text, View} from "react-native";
 import {Button, IconButton, Portal, TextInput} from "react-native-paper";
+import Toast from "react-native-toast-message";
 import DefaultCasdoorSdkConfig from "./DefaultCasdoorSdkConfig";
-import CasdoorServerContext from "./CasdoorServerContext";
 import PropTypes from "prop-types";
+import useStore from "./useStorage";
 
 const EnterCasdoorSdkConfig = ({onClose, onWebviewClose}) => {
+  const {
+    serverUrl,
+    clientId,
+    redirectPath,
+    setServerUrl,
+    setClientId,
+    setRedirectPath,
+  } = useStore();
+
   EnterCasdoorSdkConfig.propTypes = {
     onClose: PropTypes.func.isRequired,
     onWebviewClose: PropTypes.func.isRequired,
-  };
-
-  const {setCasdoorServer} = useContext(CasdoorServerContext);
-  const [CasdoorSdkConfig, setCasdoorSdkConfig] = useState({
-    serverUrl: "",
-    clientId: "",
-    appName: "",
-    organizationName: "",
-    redirectPath: "http://casdoor-app",
-    signinPath: "/api/signin",
-  });
-
-  const handleInputChange = (key, value) => {
-    setCasdoorSdkConfig({...CasdoorSdkConfig, [key]: value});
   };
 
   const closeConfigPage = () => {
@@ -45,25 +41,32 @@ const EnterCasdoorSdkConfig = ({onClose, onWebviewClose}) => {
   };
 
   const handleSave = () => {
-    if (
-      !CasdoorSdkConfig.serverUrl ||
-      !CasdoorSdkConfig.clientId ||
-      !CasdoorSdkConfig.redirectPath
-    ) {
-      Alert.alert("Please fill in all the fields!");
+    if (!serverUrl || !clientId || !redirectPath) {
+      Toast.show({
+        type: "error",
+        text1: "Error",
+        text2: "Please fill in all the fields!",
+        autoHide: true,
+      });
       return;
     }
-    setCasdoorServer(CasdoorSdkConfig);
     onClose();
   };
 
   const handleUseDefault = () => {
-    setCasdoorServer(DefaultCasdoorSdkConfig);
+    setServerUrl(DefaultCasdoorSdkConfig.serverUrl);
+    setClientId(DefaultCasdoorSdkConfig.clientId);
+    setRedirectPath(DefaultCasdoorSdkConfig.redirectPath);
     onClose();
   };
 
   const handleScanToLogin = () => {
-    Alert.alert("Scan to Login functionality not implemented yet.");
+    Toast.show({
+      type: "info",
+      text1: "Info",
+      text2: "Scan to Login functionality not implemented yet.",
+      autoHide: true,
+    });
   };
 
   return (
@@ -81,16 +84,16 @@ const EnterCasdoorSdkConfig = ({onClose, onWebviewClose}) => {
           </View>
           <TextInput
             label="Endpoint"
-            value={CasdoorSdkConfig.serverUrl}
-            onChangeText={(text) => handleInputChange("serverUrl", text)}
+            value={serverUrl}
+            onChangeText={setServerUrl}
             autoCapitalize="none"
             style={styles.input}
             mode="outlined"
           />
           <TextInput
             label="Client ID"
-            value={CasdoorSdkConfig.clientId}
-            onChangeText={(text) => handleInputChange("clientId", text)}
+            value={clientId}
+            onChangeText={setClientId}
             autoCapitalize="none"
             style={styles.input}
             mode="outlined"
@@ -102,7 +105,7 @@ const EnterCasdoorSdkConfig = ({onClose, onWebviewClose}) => {
               style={[styles.button, styles.confirmButton]}
               labelStyle={styles.buttonLabel}
             >
-                Confirm
+              Confirm
             </Button>
             <Button
               mode="contained"
@@ -110,7 +113,7 @@ const EnterCasdoorSdkConfig = ({onClose, onWebviewClose}) => {
               style={[styles.button, styles.scanButton]}
               labelStyle={styles.buttonLabel}
             >
-                Scan to Login
+              Scan to Login
             </Button>
           </View>
           <Button
@@ -119,14 +122,13 @@ const EnterCasdoorSdkConfig = ({onClose, onWebviewClose}) => {
             style={[styles.button, styles.outlinedButton]}
             labelStyle={styles.outlinedButtonLabel}
           >
-              Use Casdoor Demo Site
+            Use Casdoor Demo Site
           </Button>
         </View>
       </ScrollView>
     </Portal>
   );
 };
-
 const styles = {
   scrollContainer: {
     flexGrow: 1,
