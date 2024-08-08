@@ -15,7 +15,7 @@
 import React, {useEffect, useState} from "react";
 import {WebView} from "react-native-webview";
 import Toast from "react-native-toast-message";
-import {SafeAreaView, StyleSheet, Text, TouchableOpacity} from "react-native";
+import {Platform, SafeAreaView, StatusBar, StyleSheet, Text, TouchableOpacity} from "react-native";
 import {Portal} from "react-native-paper";
 import SDK from "casdoor-react-native-sdk";
 import PropTypes from "prop-types";
@@ -118,6 +118,8 @@ const CasdoorLoginPage = ({onWebviewClose}) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: "white",
+    paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0,
   },
   webview: {
     flex: 1,

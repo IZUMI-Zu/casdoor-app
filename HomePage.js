@@ -28,8 +28,10 @@ import EditAccountDetails from "./EditAccountDetails";
 import AvatarWithFallback from "./AvatarWithFallback";
 import * as TotpDatabase from "./TotpDatabase";
 import useStore from "./useStorage";
+import useSyncStore from "./useSyncStore";
 
 const {width, height} = Dimensions.get("window");
+const REFRESH_INTERVAL = 10000;
 const OFFSET_X = width * 0.45;
 const OFFSET_Y = height * 0.2;
 
@@ -38,6 +40,7 @@ export default function HomePage() {
   const [showOptions, setShowOptions] = useState(false);
   const [showEnterAccountModal, setShowEnterAccountModal] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [accounts, setAccounts] = useState([]);
   const [filteredData, setFilteredData] = useState(accounts);
   const [showScanner, setShowScanner] = useState(false);
   const [showEditAccountModal, setShowEditAccountModal] = useState(false);
@@ -45,12 +48,11 @@ export default function HomePage() {
   const [placeholder, setPlaceholder] = useState("");
   const [refreshing, setRefreshing] = useState(false);
   const {isConnected} = useNetInfo();
-  const [accounts, setAccounts] = useState([]);
   const [canSync, setCanSync] = useState(false);
 
   const swipeableRef = useRef(null);
-  const {userInfo, casdoorServer, token} = useStore();
-
+  const {userInfo, serverUrl, token} = useStore();
+  const {startSync} = useSyncStore();
   const db = SQLite.useSQLiteContext();
 
   useEffect(() => {
@@ -62,26 +64,29 @@ export default function HomePage() {
   }, [db]);
 
   const loadAccounts = async() => {
-    try {
-      const loadedAccounts = await TotpDatabase.getAllAccounts(db);
-      setAccounts(loadedAccounts);
-      setFilteredData(loadedAccounts);
-    } catch (error) {
-      // console.error("Error loading accounts:", error);
-    }
+    const loadedAccounts = await TotpDatabase.getAllAccounts(db);
+    setAccounts(loadedAccounts);
+    setFilteredData(loadedAccounts);
   };
 
   useEffect(() => {
-    setCanSync(isConnected && userInfo && casdoorServer);
-  }, [isConnected, userInfo, casdoorServer]);
+    setCanSync(Boolean(isConnected && userInfo && serverUrl));
+  }, [isConnected, userInfo, serverUrl]);
 
   useEffect(() => {
     setFilteredData(accounts);
   }, [accounts]);
 
+  useEffect(() => {
+    const timer = setInterval(async() => {
+      if (canSync) {await startSync(db, userInfo, serverUrl, token);}
+    }, REFRESH_INTERVAL);
+    return () => clearInterval(timer);
+  }, [startSync]);
+
   const onRefresh = async() => {
     setRefreshing(true);
-    // if (canSync) {await syncWithCloud(userInfo, casdoorServer, token);}
+    if (canSync) {await startSync(db, userInfo, serverUrl, token);}
     setRefreshing(false);
   };
 
@@ -157,7 +162,7 @@ export default function HomePage() {
       <SearchBar onSearch={handleSearch} />
       <FlashList
         data={searchQuery.trim() !== "" ? filteredData : accounts}
-        keyExtractor={(item) => item.id.toString()}
+        keyExtractor={(item) => `${item.id}`}
         estimatedItemSize={10}
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />

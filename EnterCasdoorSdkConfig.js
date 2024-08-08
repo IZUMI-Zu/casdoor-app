@@ -41,6 +41,7 @@ const EnterCasdoorSdkConfig = ({onClose, onWebviewClose}) => {
   };
 
   const handleSave = () => {
+    setRedirectPath(DefaultCasdoorSdkConfig.redirectPath);
     if (!serverUrl || !clientId || !redirectPath) {
       Toast.show({
         type: "error",
