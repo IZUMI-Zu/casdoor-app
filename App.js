@@ -22,6 +22,7 @@ import NavigationBar from "./NavigationBar";
 import {migrateDb} from "./TotpDatabase";
 
 const App = () => {
+  console.warn("Test");
   return (
     <SQLiteProvider databaseName="totp.db" onInit={migrateDb} options={{enableChangeListener: true}}>
       <NavigationContainer>

@@ -1,0 +1,79 @@
+name: Build
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - dev
+
+jobs:
+  build-apk:
+    runs-on: ubuntu-latest
+    steps: 
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: set up JDK 18
+        uses: actions/setup-java@v4
+        with:
+          java-version: 18
+          distribution: temurin
+
+      - name: Clear Metro Cache
+        run: |
+          rm -rf /tmp/metro-* || true
+
+      - name: Install npm dependencies
+        run: |
+          npm install && npx expo prebuild --platform android
+
+      - name: Print Env Info
+        run: |
+          npx expo-env-info 
+
+      - name: Build Android Release
+        run: |
+          cd android && ./gradlew assembleRelease
+          mv app/build/outputs/apk/release/app-release.apk app/build/outputs/apk/release/casdoorapp-release.apk
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: casdoorapp-release.apk
+          path: android/app/build/outputs/apk/release/
+  
+  build-apk-debug:
+    runs-on: ubuntu-latest
+    steps: 
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: set up JDK 18
+        uses: actions/setup-java@v4
+        with:
+          java-version: 18
+          distribution: temurin
+
+      - name: Install npm dependencies
+        run: |
+          npm install && npx expo prebuild --platform android
+
+      - name: Build Android Debug
+        run: |
+          cd android && ./gradlew assembleDebug
+          mv app/build/outputs/apk/debug/app-debug.apk app/build/outputs/apk/debug/casdoorapp-debug.apk
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: casdoorapp-debug.apk
+          path: android/app/build/outputs/apk/debug/
+  
