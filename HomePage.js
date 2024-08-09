@@ -21,8 +21,6 @@ import {useNetInfo} from "@react-native-community/netinfo";
 import {FlashList} from "@shopify/flash-list";
 import * as SQLite from "expo-sqlite/next";
 
-import {useDrizzleStudio} from "expo-drizzle-studio-plugin";
-
 import SearchBar from "./SearchBar";
 import EnterAccountDetails from "./EnterAccountDetails";
 import ScanQRCode from "./ScanQRCode";
@@ -56,8 +54,6 @@ export default function HomePage() {
   const {userInfo, serverUrl, token} = useStore();
   const {startSync} = useSyncStore();
   const db = SQLite.useSQLiteContext();
-
-  useDrizzleStudio(db); // debug
 
   useEffect(() => {
     if (db) {

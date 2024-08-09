@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import * as React from "react";
+import {Text} from "react-native";
 import {PaperProvider} from "react-native-paper";
 import {NavigationContainer} from "@react-navigation/native";
 import Toast from "react-native-toast-message";
@@ -22,17 +23,19 @@ import NavigationBar from "./NavigationBar";
 import {migrateDb} from "./TotpDatabase";
 
 const App = () => {
-  console.warn("Test");
   return (
-    <SQLiteProvider databaseName="totp.db" onInit={migrateDb} options={{enableChangeListener: true}}>
-      <NavigationContainer>
-        <PaperProvider>
-          <Header />
-          <NavigationBar />
-        </PaperProvider>
-      </NavigationContainer>
-      <Toast />
-    </SQLiteProvider>
+    <React.Suspense fallback={<Text>Loading...</Text>}>
+      <SQLiteProvider databaseName="totp.db" onInit={migrateDb} useSuspense={true} options={{enableChangeListener: true}}>
+        <NavigationContainer>
+          <PaperProvider>
+            <Header />
+            <NavigationBar />
+          </PaperProvider>
+        </NavigationContainer>
+        <Toast />
+      </SQLiteProvider>
+    </React.Suspense>
+
   );
 };
 export default App;
