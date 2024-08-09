@@ -13,12 +13,14 @@
 // limitations under the License.
 
 import * as React from "react";
-import {StyleSheet, View} from "react-native";
+import {Dimensions, StyleSheet, View} from "react-native";
 import {Appbar, Avatar, Menu, Text, TouchableRipple} from "react-native-paper";
 import Toast from "react-native-toast-message";
 import CasdoorLoginPage from "./CasdoorLoginPage";
 import useStore from "./useStorage";
 import useSyncStore from "./useSyncStore";
+
+const {width} = Dimensions.get("window");
 
 const Header = () => {
   const {userInfo, clearAll} = useStore();
@@ -34,17 +36,9 @@ const Header = () => {
     closeMenu();
   };
 
-  const handleCasdoorLogin = () => {
-    setShowLoginPage(true);
-  };
-
-  const handleCasdoorLogout = () => {
-    clearAll();
-  };
-
-  const handleHideLoginPage = () => {
-    setShowLoginPage(false);
-  };
+  const handleCasdoorLogin = () => setShowLoginPage(true);
+  const handleCasdoorLogout = () => clearAll();
+  const handleHideLoginPage = () => setShowLoginPage(false);
 
   const handleSyncErrorPress = () => {
     Toast.show({
@@ -58,7 +52,7 @@ const Header = () => {
   return (
     <Appbar.Header mode="center-aligned">
       <View style={styles.leftContainer}>
-        {userInfo !== null && syncError && (
+        {true && syncError && (
           <Appbar.Action
             icon="sync-alert"
             color="#E53935"
@@ -85,7 +79,12 @@ const Header = () => {
               style={styles.buttonContainer}
             >
               <View style={styles.buttonContent}>
-                <Text style={styles.buttonText}>
+                <Text
+                  style={[
+                    styles.buttonText,
+                    userInfo !== null && {marginRight: 8},
+                  ]}
+                >
                   {userInfo === null ? "Login" : userInfo.name}
                 </Text>
                 {userInfo !== null && (
@@ -114,6 +113,7 @@ const styles = StyleSheet.create({
     top: 0,
     bottom: 0,
     justifyContent: "center",
+    paddingLeft: width * 0.03,
   },
   rightContainer: {
     position: "absolute",
@@ -121,6 +121,7 @@ const styles = StyleSheet.create({
     top: 0,
     bottom: 0,
     justifyContent: "center",
+    paddingRight: width * 0.03,
   },
   titleContainer: {
     position: "absolute",
@@ -132,25 +133,23 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   titleText: {
-    fontSize: 20,
+    fontSize: Math.max(20, width * 0.045),
     fontWeight: "bold",
     textAlign: "center",
   },
   buttonContainer: {
     borderRadius: 20,
     overflow: "hidden",
-    marginRight: 8,
   },
   buttonContent: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    paddingVertical: 6,
-    paddingHorizontal: 12,
+    paddingVertical: 8,
+    paddingHorizontal: 16,
   },
   buttonText: {
-    fontSize: 14,
-    marginRight: 8,
+    fontSize: Math.max(14, width * 0.035),
     fontWeight: "bold",
   },
   menuContent: {

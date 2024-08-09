@@ -25,9 +25,13 @@ const EnterCasdoorSdkConfig = ({onClose, onWebviewClose}) => {
     serverUrl,
     clientId,
     redirectPath,
+    appName,
+    organizationName,
     setServerUrl,
     setClientId,
     setRedirectPath,
+    setAppName,
+    setOrganizationName,
   } = useStore();
 
   EnterCasdoorSdkConfig.propTypes = {
@@ -42,7 +46,7 @@ const EnterCasdoorSdkConfig = ({onClose, onWebviewClose}) => {
 
   const handleSave = () => {
     setRedirectPath(DefaultCasdoorSdkConfig.redirectPath);
-    if (!serverUrl || !clientId || !redirectPath) {
+    if (!serverUrl || !clientId || !redirectPath || !appName || !organizationName) {
       Toast.show({
         type: "error",
         text1: "Error",
@@ -58,6 +62,8 @@ const EnterCasdoorSdkConfig = ({onClose, onWebviewClose}) => {
     setServerUrl(DefaultCasdoorSdkConfig.serverUrl);
     setClientId(DefaultCasdoorSdkConfig.clientId);
     setRedirectPath(DefaultCasdoorSdkConfig.redirectPath);
+    setAppName(DefaultCasdoorSdkConfig.appName);
+    setOrganizationName(DefaultCasdoorSdkConfig.organizationName);
     onClose();
   };
 
@@ -95,6 +101,22 @@ const EnterCasdoorSdkConfig = ({onClose, onWebviewClose}) => {
             label="Client ID"
             value={clientId}
             onChangeText={setClientId}
+            autoCapitalize="none"
+            style={styles.input}
+            mode="outlined"
+          />
+          <TextInput
+            label="App Name"
+            value={appName}
+            onChangeText={setAppName}
+            autoCapitalize="none"
+            style={styles.input}
+            mode="outlined"
+          />
+          <TextInput
+            label="Organization Name"
+            value={organizationName}
+            onChangeText={setOrganizationName}
             autoCapitalize="none"
             style={styles.input}
             mode="outlined"

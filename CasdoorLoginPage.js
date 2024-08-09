@@ -36,16 +36,18 @@ const CasdoorLoginPage = ({onWebviewClose}) => {
     serverUrl,
     clientId,
     redirectPath,
+    appName,
+    organizationName,
     setUserInfo,
     setToken,
   } = useStore();
 
   useEffect(() => {
-    if (serverUrl && clientId) {
-      sdk = new SDK({serverUrl, clientId, redirectPath, appName: "", organizationName: ""});
+    if (serverUrl && clientId && redirectPath && appName && organizationName) {
+      sdk = new SDK({serverUrl, clientId, redirectPath, appName, organizationName});
       getCasdoorSignInUrl();
     }
-  }, [serverUrl, clientId]);
+  }, [serverUrl, clientId, redirectPath, appName, organizationName]);
 
   const handleHideConfigPage = () => {
     setShowConfigPage(false);
