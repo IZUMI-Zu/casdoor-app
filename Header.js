@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import * as React from "react";
-import {Platform, StyleSheet, View} from "react-native";
+import {StyleSheet, View} from "react-native";
 import {Appbar, Avatar, Menu, Text, TouchableRipple} from "react-native-paper";
 import Toast from "react-native-toast-message";
 import CasdoorLoginPage from "./CasdoorLoginPage";
@@ -56,7 +56,7 @@ const Header = () => {
   };
 
   return (
-    <Appbar.Header style={styles.header}>
+    <Appbar.Header mode="center-aligned">
       <View style={styles.leftContainer}>
         {userInfo !== null && syncError && (
           <Appbar.Action
@@ -76,8 +76,9 @@ const Header = () => {
         <Menu
           visible={menuVisible}
           onDismiss={closeMenu}
-          style={styles.menu}
           contentStyle={styles.menuContent}
+          anchorPosition="bottom"
+          mode="elevated"
           anchor={
             <TouchableRipple
               onPress={userInfo === null ? handleCasdoorLogin : openMenu}
@@ -107,12 +108,6 @@ const Header = () => {
 };
 
 const styles = StyleSheet.create({
-  header: {
-    height: Platform.OS === "ios" ? 44 : 56,
-    paddingTop: Platform.OS === "ios" ? 0 : 4,
-    justifyContent: "center",
-    alignItems: "center",
-  },
   leftContainer: {
     position: "absolute",
     left: 0,
@@ -157,9 +152,6 @@ const styles = StyleSheet.create({
     fontSize: 14,
     marginRight: 8,
     fontWeight: "bold",
-  },
-  menu: {
-    marginTop: 40,
   },
   menuContent: {
     backgroundColor: "#FFFFFF",
