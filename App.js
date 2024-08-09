@@ -15,6 +15,7 @@
 import * as React from "react";
 import {PaperProvider} from "react-native-paper";
 import {NavigationContainer} from "@react-navigation/native";
+import {BulletList} from "react-content-loader/native";
 import Toast from "react-native-toast-message";
 import {SQLiteProvider} from "expo-sqlite";
 import Header from "./Header";
@@ -23,17 +24,17 @@ import {migrateDb} from "./TotpDatabase";
 
 const App = () => {
   return (
-    // <React.Suspense fallback={<BulletList />}>
-    <SQLiteProvider databaseName="totp.db" onInit={migrateDb} options={{enableChangeListener: true}}>
-      <NavigationContainer>
-        <PaperProvider>
-          <Header />
-          <NavigationBar />
-        </PaperProvider>
-      </NavigationContainer>
-      <Toast />
-    </SQLiteProvider>
-    // </React.Suspense>
+    <React.Suspense fallback={<BulletList />}>
+      <SQLiteProvider databaseName="totp.db" onInit={migrateDb} options={{enableChangeListener: true}}>
+        <NavigationContainer>
+          <PaperProvider>
+            <Header />
+            <NavigationBar />
+          </PaperProvider>
+        </NavigationContainer>
+        <Toast />
+      </SQLiteProvider>
+    </React.Suspense>
 
   );
 };

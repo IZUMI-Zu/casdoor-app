@@ -159,7 +159,7 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
   menu: {
-    marginTop: Platform.OS === "android" ? 80 : 40,
+    marginTop: 40,
   },
   menuContent: {
     backgroundColor: "#FFFFFF",
