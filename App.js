@@ -13,9 +13,9 @@
 // limitations under the License.
 
 import * as React from "react";
-import {Text} from "react-native";
 import {PaperProvider} from "react-native-paper";
 import {NavigationContainer} from "@react-navigation/native";
+import {BulletList} from "react-content-loader";
 import Toast from "react-native-toast-message";
 import {SQLiteProvider} from "expo-sqlite";
 import Header from "./Header";
@@ -24,7 +24,7 @@ import {migrateDb} from "./TotpDatabase";
 
 const App = () => {
   return (
-    <React.Suspense fallback={<Text>Loading...</Text>}>
+    <React.Suspense fallback={<BulletList />}>
       <SQLiteProvider databaseName="totp.db" onInit={migrateDb} useSuspense={true} options={{enableChangeListener: true}}>
         <NavigationContainer>
           <PaperProvider>
