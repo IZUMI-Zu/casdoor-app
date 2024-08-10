@@ -252,7 +252,6 @@ function mergeAccounts(localAccounts, serverAccounts, serverTimestamp) {
 }
 
 export async function syncWithCloud(db, userInfo, serverUrl, token) {
-  // Step 1: Fetch local and server accounts
   const localAccounts = await getLocalAccounts(db);
   const {updatedTime, mfaAccounts: serverAccounts} = await api.getMfaAccounts(
     serverUrl,
@@ -262,13 +261,9 @@ export async function syncWithCloud(db, userInfo, serverUrl, token) {
   );
   const serverTimestamp = Math.floor(new Date(updatedTime).getTime() / 1000);
 
-  // Step 2: Merge accounts
   const mergedAccounts = mergeAccounts(localAccounts, serverAccounts, serverTimestamp);
-
-  // Step 3: Update local database
   await updateLocalDatabase(db, mergedAccounts);
 
-  // Step 4: Send updates to server
   const accountsToSync = mergedAccounts.filter(account => !account.isDeleted).map(account => ({
     issuer: account.issuer,
     accountName: account.accountName,
@@ -287,10 +282,6 @@ export async function syncWithCloud(db, userInfo, serverUrl, token) {
     throw new Error("Sync failed");
   }
 
-  // Step 5: Update sync time for all accounts
   await updateSyncTimeForAll(db);
   await updateTokenForAll(db);
 }
-
-// 服务端更改 删除逻辑无
-// 本地删除 更改无
