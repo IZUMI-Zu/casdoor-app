@@ -29,11 +29,12 @@ const EnterAccountDetails = ({onClose, onAdd, validateSecret}) => {
   const [secretKey, setSecretKey] = useState("");
   const [secretError, setSecretError] = useState("");
   const [accountNameError, setAccountNameError] = useState("");
-
   const [visible, setVisible] = useState(false);
+  const [selectedItem, setSelectedItem] = useState("Time based");
+  const [showPassword, setShowPassword] = useState(false);
+
   const openMenu = () => setVisible(true);
   const closeMenu = () => setVisible(false);
-  const [selectedItem, setSelectedItem] = useState("Time based");
 
   const handleMenuItemPress = useCallback((item) => {
     setSelectedItem(item);
@@ -106,12 +107,16 @@ const EnterAccountDetails = ({onClose, onAdd, validateSecret}) => {
             label="Secret Key"
             value={secretKey}
             onChangeText={handleSecretKeyChange}
-            secureTextEntry
+            secureTextEntry={!showPassword}
             error={!!secretError}
             style={styles.input}
             mode="outlined"
-            // showpassword
-            right={<TextInput.Icon name="eye" onPress={() => {}} />}
+            right={
+              <TextInput.Icon
+                icon={showPassword ? "eye-off" : "eye"}
+                onPress={() => setShowPassword(!showPassword)}
+              />
+            }
           />
           <View style={styles.buttonContainer}>
             <Menu
