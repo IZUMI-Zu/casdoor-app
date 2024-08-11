@@ -13,8 +13,8 @@
 // limitations under the License.
 
 import React, {useState} from "react";
-import {Text, TextInput, View} from "react-native";
-import {Button, Divider, IconButton, Menu} from "react-native-paper";
+import {View} from "react-native";
+import {Button, IconButton, Menu, TextInput} from "react-native-paper";
 import Toast from "react-native-toast-message";
 import PropTypes from "prop-types";
 
@@ -27,8 +27,8 @@ export default function EnterAccountDetails({onClose, onAdd, validateSecret}) {
 
   const [accountName, setAccountName] = useState("");
   const [secretKey, setSecretKey] = useState("");
-  const [errorMessage, setErrorMessage] = useState("");
   const [secretError, setSecretError] = useState("");
+  const [accountNameError, setAccountNameError] = useState("");
 
   const [visible, setVisible] = useState(false);
   const openMenu = () => setVisible(true);
@@ -41,11 +41,13 @@ export default function EnterAccountDetails({onClose, onAdd, validateSecret}) {
   };
 
   const handleAddAccount = () => {
-    if (accountName.trim() === "" || secretKey.trim() === "") {
-      Toast.show({
-        type: "error",
-        text1: "Both Account Name and Secret Key are required.",
-      });
+    if (accountName.trim() === "") {
+      setAccountNameError("Account Name is required");
+      return;
+    }
+
+    if (secretKey.trim() === "") {
+      setSecretError("Secret Key is required");
       return;
     }
 
@@ -57,10 +59,11 @@ export default function EnterAccountDetails({onClose, onAdd, validateSecret}) {
       return;
     }
 
-    setErrorMessage("");
     onAdd({accountName, secretKey});
     setAccountName("");
     setSecretKey("");
+    setAccountNameError("");
+    setSecretError("");
   };
 
   const handleSecretKeyChange = (text) => {
@@ -71,106 +74,61 @@ export default function EnterAccountDetails({onClose, onAdd, validateSecret}) {
     }
   };
 
+  const handleAccountNameChange = (text) => {
+    setAccountName(text);
+    if (text.trim() !== "") {
+      setAccountNameError("");
+    }
+  };
+
   return (
-    <View style={{flex: 1, justifyContent: "center", alignItems: "center"}}>
-      <Text style={{fontSize: 24, marginBottom: 5}}>Add new 2FA account</Text>
+    <View style={{padding: 16, backgroundColor: "#f5f5f5", borderRadius: 8}}>
+      <IconButton
+        icon="close"
+        size={24}
+        onPress={onClose}
+        style={{position: "absolute", top: 8, right: 8}}
+      />
 
-      {errorMessage ? (
-        <Text style={{color: "red", marginBottom: 10}}>{errorMessage}</Text>
-      ) : null}
+      <TextInput
+        label="Account Name"
+        value={accountName}
+        onChangeText={handleAccountNameChange}
+        error={!!accountNameError}
+        errorText={accountNameError}
+        style={{marginBottom: 16}}
+      />
 
-      <View style={{flexDirection: "row", alignItems: "center"}}>
-        <IconButton icon="account-details" size={35} />
-        <TextInput
-          label="Account Name"
-          placeholder="Account Name"
-          value={accountName}
-          autoCapitalize="none"
-          onChangeText={(text) => setAccountName(text)}
-          style={{
-            borderWidth: 3,
-            borderColor: "white",
-            margin: 10,
-            width: 230,
-            height: 50,
-            borderRadius: 5,
-            fontSize: 18,
-            color: "gray",
-            paddingLeft: 10,
-          }}
-        />
-      </View>
+      <TextInput
+        label="Secret Key"
+        value={secretKey}
+        onChangeText={handleSecretKeyChange}
+        secureTextEntry
+        error={!!secretError}
+        errorText={secretError}
+        style={{marginBottom: 16}}
+      />
 
-      <View style={{flexDirection: "row", alignItems: "center"}}>
-        <IconButton icon="account-key" size={35} />
-        <TextInput
-          label="Secret Key"
-          placeholder="Secret Key"
-          value={secretKey}
-          autoCapitalize="none"
-          onChangeText={handleSecretKeyChange}
-          secureTextEntry
-          style={{
-            borderWidth: 3,
-            borderColor: "white",
-            margin: 10,
-            width: 230,
-            height: 50,
-            borderRadius: 5,
-            fontSize: 18,
-            color: "gray",
-            paddingLeft: 10,
-          }}
-        />
-      </View>
-
-      {secretError ? (
-        <Text style={{color: "red", marginBottom: 10}}>{secretError}</Text>
-      ) : null}
+      <Menu
+        visible={visible}
+        onDismiss={closeMenu}
+        anchor={
+          <Button onPress={openMenu} mode="outlined" icon="chevron-down" style={{marginBottom: 16}}>
+            {selectedItem}
+          </Button>
+        }
+      >
+        <Menu.Item onPress={() => handleMenuItemPress("Time based")} title="Time based" />
+        <Menu.Item onPress={() => handleMenuItemPress("Counter based")} title="Counter based" />
+      </Menu>
 
       <Button
-        icon="account-plus"
-        style={{
-          backgroundColor: "#E6DFF3",
-          borderRadius: 5,
-          margin: 10,
-          alignItems: "center",
-          position: "absolute",
-          top: 230,
-          right: 30,
-          width: 90,
-        }}
+        mode="contained"
         onPress={handleAddAccount}
+        style={{marginTop: 8}}
       >
-        <Text style={{fontSize: 18}}>Add</Text>
+        Add Account
       </Button>
-
-      <IconButton icon={"close"} size={30} onPress={onClose} style={{position: "absolute", top: 5, right: 5}} />
-
-      <View
-        style={{
-          backgroundColor: "#E6DFF3",
-          borderRadius: 5,
-          position: "absolute",
-          left: 30,
-          top: 240,
-          width: 140,
-        }}
-      >
-        <Menu
-          visible={visible}
-          onDismiss={closeMenu}
-          anchor={
-            <Button style={{alignItems: "left"}} icon={"chevron-down"} onPress={openMenu}>
-              {selectedItem}
-            </Button>
-          }
-        >
-          <Menu.Item onPress={() => handleMenuItemPress("Time based")} title="Time based" />
-          <Divider />
-          <Menu.Item onPress={() => handleMenuItemPress("Counter based")} title="Counter based" />
-        </Menu>
-      </View>
     </View>
   );
 }

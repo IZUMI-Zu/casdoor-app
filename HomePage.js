@@ -19,6 +19,7 @@ import {GestureHandlerRootView, Swipeable} from "react-native-gesture-handler";
 import {CountdownCircleTimer} from "react-native-countdown-circle-timer";
 import {useNetInfo} from "@react-native-community/netinfo";
 import {FlashList} from "@shopify/flash-list";
+import Toast from "react-native-toast-message";
 import * as SQLite from "expo-sqlite/next";
 
 import SearchBar from "./SearchBar";
@@ -51,9 +52,10 @@ export default function HomePage() {
   const [canSync, setCanSync] = useState(false);
 
   const swipeableRef = useRef(null);
+  const db = SQLite.useSQLiteContext();
   const {userInfo, serverUrl, token} = useStore();
   const {startSync} = useSyncStore();
-  const db = SQLite.useSQLiteContext();
+  const syncError = useSyncStore(state => state.syncError);
 
   useEffect(() => {
     if (db) {
@@ -89,7 +91,24 @@ export default function HomePage() {
 
   const onRefresh = async() => {
     setRefreshing(true);
-    if (canSync) {await startSync(db, userInfo, serverUrl, token);}
+    if (canSync) {
+      await startSync(db, userInfo, serverUrl, token);
+      if (syncError) {
+        Toast.show({
+          type: "error",
+          text1: "Sync error",
+          text2: syncError,
+          autoHide: true,
+        });
+      } else {
+        Toast.show({
+          type: "success",
+          text1: "Sync success",
+          text2: "All your accounts are up to date.",
+          autoHide: true,
+        });
+      }
+    }
     setRefreshing(false);
   };
 
