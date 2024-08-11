@@ -23,6 +23,7 @@ import useStore from "./useStorage";
 const EnterCasdoorSdkConfig = ({onClose, onWebviewClose}) => {
   EnterCasdoorSdkConfig.propTypes = {
     onClose: PropTypes.func.isRequired,
+    onWebviewClose: PropTypes.func.isRequired,
   };
 
   const {
@@ -174,29 +175,31 @@ const styles = {
   buttonRow: {
     flexDirection: "row",
     justifyContent: "space-between",
-    marginTop: 20,
+    marginTop: 14,
+    marginBottom: 12,
   },
   button: {
-    flex: 1,
     borderRadius: 5,
-    marginHorizontal: 5,
-    paddingVertical: 5,
+    paddingVertical: 8,
   },
   confirmButton: {
     backgroundColor: "#6200EE",
+    flex: 1,
+    marginRight: 5,
   },
   scanButton: {
     backgroundColor: "#03DAC6",
+    flex: 1,
+    marginLeft: 5,
   },
   buttonLabel: {
-    fontSize: 14,
+    fontSize: 16,
     color: "white",
   },
   outlinedButton: {
     borderColor: "#6200EE",
     borderWidth: 1,
-    marginTop: 20,
-    paddingVertical: 10,
+    width: "100%",
   },
   outlinedButtonLabel: {
     color: "#6200EE",
