@@ -15,18 +15,22 @@
 import React, {useState} from "react";
 import {Text, TextInput, View} from "react-native";
 import {Button, Divider, IconButton, Menu} from "react-native-paper";
+import Toast from "react-native-toast-message";
 import PropTypes from "prop-types";
 
-export default function EnterAccountDetails({onClose, onAdd}) {
+export default function EnterAccountDetails({onClose, onAdd, validateSecret}) {
   EnterAccountDetails.propTypes = {
     onClose: PropTypes.func.isRequired,
     onAdd: PropTypes.func.isRequired,
+    validateSecret: PropTypes.func.isRequired,
   };
 
   const [accountName, setAccountName] = useState("");
   const [secretKey, setSecretKey] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
+  const [secretError, setSecretError] = useState("");
 
-  const [visible, setVisible] = React.useState(false);
+  const [visible, setVisible] = useState(false);
   const openMenu = () => setVisible(true);
   const closeMenu = () => setVisible(false);
   const [selectedItem, setSelectedItem] = useState("Time based");
@@ -37,14 +41,44 @@ export default function EnterAccountDetails({onClose, onAdd}) {
   };
 
   const handleAddAccount = () => {
+    if (accountName.trim() === "" || secretKey.trim() === "") {
+      Toast.show({
+        type: "error",
+        text1: "Both Account Name and Secret Key are required.",
+      });
+      return;
+    }
+
+    if (secretError) {
+      Toast.show({
+        type: "error",
+        text1: "Invalid Secret Key",
+      });
+      return;
+    }
+
+    setErrorMessage("");
     onAdd({accountName, secretKey});
     setAccountName("");
     setSecretKey("");
   };
 
+  const handleSecretKeyChange = (text) => {
+    setSecretKey(text);
+    if (validateSecret) {
+      const isValid = validateSecret(text);
+      setSecretError(isValid ? "" : "Invalid Secret Key");
+    }
+  };
+
   return (
     <View style={{flex: 1, justifyContent: "center", alignItems: "center"}}>
       <Text style={{fontSize: 24, marginBottom: 5}}>Add new 2FA account</Text>
+
+      {errorMessage ? (
+        <Text style={{color: "red", marginBottom: 10}}>{errorMessage}</Text>
+      ) : null}
+
       <View style={{flexDirection: "row", alignItems: "center"}}>
         <IconButton icon="account-details" size={35} />
         <TextInput
@@ -53,7 +87,17 @@ export default function EnterAccountDetails({onClose, onAdd}) {
           value={accountName}
           autoCapitalize="none"
           onChangeText={(text) => setAccountName(text)}
-          style={{borderWidth: 3, borderColor: "white", margin: 10, width: 230, height: 50, borderRadius: 5, fontSize: 18, color: "gray", paddingLeft: 10}}
+          style={{
+            borderWidth: 3,
+            borderColor: "white",
+            margin: 10,
+            width: 230,
+            height: 50,
+            borderRadius: 5,
+            fontSize: 18,
+            color: "gray",
+            paddingLeft: 10,
+          }}
         />
       </View>
 
@@ -64,11 +108,26 @@ export default function EnterAccountDetails({onClose, onAdd}) {
           placeholder="Secret Key"
           value={secretKey}
           autoCapitalize="none"
-          onChangeText={(text) => setSecretKey(text)}
+          onChangeText={handleSecretKeyChange}
           secureTextEntry
-          style={{borderWidth: 3, borderColor: "white", margin: 10, width: 230, height: 50, borderRadius: 5, fontSize: 18, color: "gray", paddingLeft: 10}}
+          style={{
+            borderWidth: 3,
+            borderColor: "white",
+            margin: 10,
+            width: 230,
+            height: 50,
+            borderRadius: 5,
+            fontSize: 18,
+            color: "gray",
+            paddingLeft: 10,
+          }}
         />
       </View>
+
+      {secretError ? (
+        <Text style={{color: "red", marginBottom: 10}}>{secretError}</Text>
+      ) : null}
+
       <Button
         icon="account-plus"
         style={{
@@ -85,7 +144,9 @@ export default function EnterAccountDetails({onClose, onAdd}) {
       >
         <Text style={{fontSize: 18}}>Add</Text>
       </Button>
+
       <IconButton icon={"close"} size={30} onPress={onClose} style={{position: "absolute", top: 5, right: 5}} />
+
       <View
         style={{
           backgroundColor: "#E6DFF3",

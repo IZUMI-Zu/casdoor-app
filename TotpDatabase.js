@@ -177,6 +177,14 @@ export function calculateCountdown() {
   return 30 - (now % 30);
 }
 
+export function validateSecret(secret) {
+  const base32Regex = /^[A-Z2-7]+=*$/i;
+  if (!secret || secret.length % 8 !== 0) {
+    return false;
+  }
+  return base32Regex.test(secret);
+}
+
 async function updateLocalDatabase(db, mergedAccounts) {
   for (const account of mergedAccounts) {
     if (account.id) {

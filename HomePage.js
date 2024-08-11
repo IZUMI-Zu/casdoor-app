@@ -292,7 +292,7 @@ export default function HomePage() {
             transform: [{translateX: -OFFSET_X}, {translateY: -OFFSET_Y}],
           }}
         >
-          <EnterAccountDetails onClose={closeEnterAccountModal} onAdd={handleAddAccount} />
+          <EnterAccountDetails onClose={closeEnterAccountModal} onAdd={handleAddAccount} validateSecret={TotpDatabase.validateSecret} />
         </Modal>
       </Portal>
 
