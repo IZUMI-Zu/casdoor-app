@@ -14,7 +14,7 @@
 
 import React, {useCallback, useState} from "react";
 import {View} from "react-native";
-import {Button, IconButton, Menu, Portal, Text, TextInput} from "react-native-paper";
+import {Button, IconButton, Menu, Text, TextInput} from "react-native-paper";
 import Toast from "react-native-toast-message";
 import PropTypes from "prop-types";
 
@@ -42,6 +42,14 @@ const EnterAccountDetails = ({onClose, onAdd, validateSecret}) => {
   }, []);
 
   const handleAddAccount = useCallback(() => {
+    if (accountName.trim() === "") {
+      setAccountNameError("Account Name is required");
+    }
+
+    if (secretKey.trim() === "") {
+      setSecretError("Secret Key is required");
+    }
+
     if (accountName.trim() === "" || secretKey.trim() === "") {
       Toast.show({
         type: "error",
@@ -79,77 +87,77 @@ const EnterAccountDetails = ({onClose, onAdd, validateSecret}) => {
 
   const handleAccountNameChange = useCallback((text) => {
     setAccountName(text);
-    setAccountNameError(text.trim() !== "" ? "" : "Account Name is required");
-  }, []);
+    if (accountNameError) {
+      setAccountNameError("");
+    }
+  }, [accountNameError]);
 
   return (
-    <Portal>
-      <View style={styles.container}>
-        <View style={styles.content}>
-          <View style={styles.header}>
-            <Text style={styles.title}>Add Account</Text>
-            <IconButton
-              icon="close"
-              size={24}
-              onPress={onClose}
-              style={styles.closeButton}
+    <View style={styles.container}>
+      <View style={styles.content}>
+        <View style={styles.header}>
+          <Text style={styles.title}>Add Account</Text>
+          <IconButton
+            icon="close"
+            size={24}
+            onPress={onClose}
+            style={styles.closeButton}
+          />
+        </View>
+        <TextInput
+          label="Account Name"
+          value={accountName}
+          onChangeText={handleAccountNameChange}
+          error={!!accountNameError}
+          style={styles.input}
+          mode="outlined"
+        />
+        <TextInput
+          label="Secret Key"
+          value={secretKey}
+          onChangeText={handleSecretKeyChange}
+          secureTextEntry={!showPassword}
+          error={!!secretError}
+          style={styles.input}
+          mode="outlined"
+          right={
+            <TextInput.Icon
+              icon={showPassword ? "eye-off" : "eye"}
+              onPress={() => setShowPassword(!showPassword)}
             />
-          </View>
-          <TextInput
-            label="Account Name"
-            value={accountName}
-            onChangeText={handleAccountNameChange}
-            error={!!accountNameError}
-            style={styles.input}
-            mode="outlined"
-          />
-          <TextInput
-            label="Secret Key"
-            value={secretKey}
-            onChangeText={handleSecretKeyChange}
-            secureTextEntry={!showPassword}
-            error={!!secretError}
-            style={styles.input}
-            mode="outlined"
-            right={
-              <TextInput.Icon
-                icon={showPassword ? "eye-off" : "eye"}
-                onPress={() => setShowPassword(!showPassword)}
-              />
+          }
+        />
+        <View style={styles.buttonContainer}>
+          <Menu
+            visible={visible}
+            onDismiss={closeMenu}
+            anchor={
+              <Button
+                onPress={openMenu}
+                mode="outlined"
+                icon="chevron-down"
+                contentStyle={styles.menuButtonContent}
+                style={styles.menuButton}
+              >
+                {selectedItem}
+              </Button>
             }
-          />
-          <View style={styles.buttonContainer}>
-            <Menu
-              visible={visible}
-              onDismiss={closeMenu}
-              anchor={
-                <Button
-                  onPress={openMenu}
-                  mode="outlined"
-                  icon="chevron-down"
-                  contentStyle={styles.menuButtonContent}
-                  style={styles.menuButton}
-                >
-                  {selectedItem}
-                </Button>
-              }
-              contentStyle={styles.menuContent}
-            >
-              <Menu.Item onPress={() => handleMenuItemPress("Time based")} title="Time based" />
-              <Menu.Item onPress={() => handleMenuItemPress("Counter based")} title="Counter based" />
-            </Menu>
-            <Button
-              mode="contained"
-              onPress={handleAddAccount}
-              style={styles.addButton}
-              labelStyle={styles.buttonLabel}
-            >
-              Add Account
-            </Button>
-          </View>
+            contentStyle={styles.menuContent}
+          >
+            <Menu.Item onPress={() => handleMenuItemPress("Time based")} title="Time based" />
+            <Menu.Item onPress={() => handleMenuItemPress("Counter based")} title="Counter based" />
+          </Menu>
+          <Button
+            mode="contained"
+            onPress={handleAddAccount}
+            style={styles.addButton}
+            labelStyle={styles.buttonLabel}
+          >
+            Add Account
+          </Button>
         </View>
       </View>
-    </Portal>
+    </View>
   );
 };
 
@@ -160,7 +168,7 @@ const styles = {
     alignItems: "center",
   },
   content: {
-    width: "90%",
+    width: "100%",
     borderRadius: 10,
     padding: 20,
     backgroundColor: "#F5F5F5",

@@ -45,6 +45,17 @@ CREATE TABLE accounts (
   await db.execAsync(`PRAGMA user_version = ${DATABASE_VERSION}`);
 }
 
+export async function clearDatabase(db) {
+  try {
+    await db.execAsync("DELETE FROM accounts");
+    await db.execAsync("DELETE FROM sqlite_sequence WHERE name='accounts'");
+    await db.execAsync("PRAGMA user_version = 0");
+    return true;
+  } catch (error) {
+    return false;
+  }
+}
+
 const generateToken = (secretKey) => {
   if (secretKey !== null && secretKey !== undefined && secretKey !== "") {
     try {
