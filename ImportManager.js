@@ -13,12 +13,12 @@
 // limitations under the License.
 
 import {useActionSheet} from "@expo/react-native-action-sheet";
-import * as DocumentPicker from "expo-document-picker";
-import * as FileSystem from "expo-file-system";
 import * as ImagePicker from "expo-image-picker";
 import {scanFromURLAsync} from "expo-camera";
 
 import useProtobufDecoder from "./useProtobufDecoder";
+
+import {importFromMSAuth} from "./MSAuthImportLogic";
 
 export const importFromGoogleAuthenticator = async(decoder) => {
   try {
@@ -42,23 +42,10 @@ export const importFromGoogleAuthenticator = async(decoder) => {
 export const importFromAuthy = () => {
 };
 
-export const importFromMicrosoftAuthenticator = async(onImportComplete) => {
-  const result = await DocumentPicker.getDocumentAsync({
-    // type: "text/csv",
-    multiple: false,
-  });
-
-  if (!result.canceled) {
-    const file = result.assets[0];
-    const fileContent = await FileSystem.readAsStringAsync(file.uri);
-    onImportComplete(fileContent);
-  }
-};
-
 const importApps = [
-  {name: "Google Authenticator", importFunction: importFromGoogleAuthenticator},
   {name: "Authy", importFunction: importFromAuthy},
-  {name: "Microsoft Authenticator", importFunction: importFromMicrosoftAuthenticator},
+  {name: "Google Authenticator", importFunction: importFromGoogleAuthenticator},
+  {name: "Microsoft Authenticator", importFunction: importFromMSAuth},
 ];
 
 export const useImportManager = (onImportComplete, onError) => {
