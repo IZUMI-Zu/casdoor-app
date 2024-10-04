@@ -13,43 +13,14 @@
 // limitations under the License.
 
 import {useActionSheet} from "@expo/react-native-action-sheet";
-import * as ImagePicker from "expo-image-picker";
-import {scanFromURLAsync} from "expo-camera";
-
-import useProtobufDecoder from "./useProtobufDecoder";
-
 import {importFromMSAuth} from "./MSAuthImportLogic";
 
-export const importFromGoogleAuthenticator = async(decoder) => {
-  try {
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      quality: 1,
-    });
-
-    if (!result.canceled && result.assets[0]) {
-      const scannedData = await scanFromURLAsync(result.assets[0].uri, ["qr", "pdf417"]);
-      if (scannedData[0]) {
-        const fileContent = decoder.decodeExportUri(scannedData[0].data);
-        return fileContent.map(({accountName, issuer, totpSecret}) => ({accountName, issuer, secretKey: totpSecret}));
-      }
-    }
-  } catch (error) {
-    throw new Error(error);
-  }
-};
-
-export const importFromAuthy = () => {
-};
-
 const importApps = [
-  {name: "Authy", importFunction: importFromAuthy},
-  {name: "Google Authenticator", importFunction: importFromGoogleAuthenticator},
+  {name: "Google Authenticator", useScanner: true},
   {name: "Microsoft Authenticator", importFunction: importFromMSAuth},
 ];
 
-export const useImportManager = (onImportComplete, onError) => {
-  const decoder = useProtobufDecoder(require("./google/google_auth.proto"));
+export const useImportManager = (onImportComplete, onError, onOpenScanner) => {
   const {showActionSheetWithOptions} = useActionSheet();
 
   const showImportOptions = () => {
@@ -62,19 +33,17 @@ export const useImportManager = (onImportComplete, onError) => {
         cancelButtonIndex,
         title: "Select app to import from",
       },
-      async(selectedIndex) => {
+      (selectedIndex) => {
         if (selectedIndex !== cancelButtonIndex) {
           const selectedApp = importApps[selectedIndex];
-          try {
-            if (selectedApp.name === "Google Authenticator") {
-              const fileContent = await selectedApp.importFunction(decoder);
-              onImportComplete(fileContent);
-            } else {
-              const fileContent = await selectedApp.importFunction();
-              onImportComplete(fileContent);
-            }
-          } catch (error) {
-            onError(error);
+          if (selectedApp.useScanner) {
+            onOpenScanner();
+          } else if (selectedApp.importFunction) {
+            selectedApp.importFunction()
+              .then(onImportComplete)
+              .catch(onError);
+          } else {
+            onError(new Error(`Import function not implemented for ${selectedApp.name}`));
           }
         }
       }

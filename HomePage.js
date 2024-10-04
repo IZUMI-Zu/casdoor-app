@@ -64,6 +64,8 @@ export default function HomePage() {
     notify("error", {
       params: {title: "Import error", description: err.message},
     });
+  }, () => {
+    setShowScanner(true);
   });
 
   useEffect(() => {
