@@ -40,7 +40,9 @@ export const useImportManager = (onImportComplete, onError, onOpenScanner) => {
             onOpenScanner();
           } else if (selectedApp.importFunction) {
             selectedApp.importFunction()
-              .then(onImportComplete)
+              .then(result => {
+                if (result) {onImportComplete(result);}
+              })
               .catch(onError);
           } else {
             onError(new Error(`Import function not implemented for ${selectedApp.name}`));
