@@ -12,9 +12,7 @@
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
-    "assetBundlePatterns": [
-      "**/*"
-    ],
+    "assetBundlePatterns": ["**/*"],
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "org.casdoor.casdoorapp",
@@ -33,7 +31,7 @@
     },
     "extra": {
       "eas": {
-        "projectId": "c02d2dfe-dd43-46ff-8a3e-e384fbc95b1d"
+        "projectId": "d0ddea88-9be6-46db-8aa5-ea6d80cef527"
       }
     },
     "plugins": [
@@ -53,6 +51,6 @@
       "expo-font",
       "expo-localization"
     ],
-    "owner": "casdoor"
+    "owner": "zzbs"
   }
 }
