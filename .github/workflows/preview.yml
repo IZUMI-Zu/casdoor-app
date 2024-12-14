@@ -94,7 +94,7 @@ jobs:
         id: preview
         uses: expo/expo-github-action/preview@v8
         env:
-          EXPO_PUBLIC_COMMIT_HASH: ${{ steps.pr-details.outputs.head_sha.substring(0, 7) }}
+          EXPO_PUBLIC_COMMIT_HASH: ${{ steps.pr-details.outputs.head_sha }}
           EXPO_PUBLIC_CI: true
         with:
           comment: false
