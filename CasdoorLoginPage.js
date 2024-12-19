@@ -25,6 +25,7 @@ import useStore from "./useStorage";
 import DefaultCasdoorSdkConfig from "./DefaultCasdoorSdkConfig";
 import {useTranslation} from "react-i18next";
 import {useLanguageSync} from "./useLanguageSync";
+import {useAccount} from "./useAccountStore";
 
 let sdk = null;
 
@@ -209,9 +210,11 @@ const styles = StyleSheet.create({
 });
 
 export const CasdoorLogout = () => {
+  const {deleteAccountByOrigin} = useAccount();
   if (sdk) {
     sdk.clearState();
   }
+  deleteAccountByOrigin();
 };
 
 export default CasdoorLoginPage;

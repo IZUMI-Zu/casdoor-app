@@ -41,11 +41,13 @@ async function updateLocalDatabase(db, accounts) {
       if (account.id) {
         if (account.deletedAt === null || account.deletedAt === undefined) {
           // compare all fields
+          // TODO: check if need to compare origin and timestamp
           const acc = await tx.select().from(schema.accounts).where(eq(schema.accounts.id, account.id)).get();
           if (acc.issuer === account.issuer &&
             acc.accountName === account.accountName &&
             acc.secretKey === account.secretKey &&
-            acc.deletedAt === account.deletedAt
+            acc.deletedAt === account.deletedAt &&
+            acc.origin === account.origin
           ) {
             continue;
           }
@@ -56,6 +58,7 @@ async function updateLocalDatabase(db, accounts) {
             deletedAt: null,
             token: generateToken(account.secretKey),
             changedAt: new Date(),
+            origin: account.origin,
           }).where(eq(schema.accounts.id, account.id));
         } else {
           await tx.delete(schema.accounts).where(eq(schema.accounts.id, account.id));
@@ -65,6 +68,7 @@ async function updateLocalDatabase(db, accounts) {
           issuer: account.issuer || null,
           accountName: account.accountName,
           secretKey: account.secretKey,
+          origin: account.origin || null,
           token: generateToken(account.secretKey),
         });
       }
@@ -160,12 +164,14 @@ export async function syncWithCloud(db, userInfo, serverUrl, token) {
         issuer: account.issuer,
         accountName: account.accountName,
         secretKey: account.secretKey,
+        origin: account.origin,
       }));
 
     const serverAccountsStringified = serverAccounts.map(account => JSON.stringify({
       issuer: account.issuer,
       accountName: account.accountName,
       secretKey: account.secretKey,
+      origin: account.origin,
     }));
 
     const accountsToSyncStringified = accountsToSync.map(account => JSON.stringify(account));

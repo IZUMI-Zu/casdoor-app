@@ -12,9 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import AsyncStorage from "@react-native-async-storage/async-storage";
+
 import {db} from "./db/client";
 import * as schema from "./db/schema";
-import {and, eq, isNull} from "drizzle-orm";
+import {and, eq, isNull, not} from "drizzle-orm";
 import {create} from "zustand";
 import {generateToken} from "./totpUtil";
 import {syncWithCloud} from "./syncLogic";
@@ -66,13 +68,17 @@ const useEditAccountStore = create((set, get) => ({
     });
   },
 
-  insertAccount: () => {
+  insertAccount: async() => {
     const {accountName, issuer, secretKey} = get().account;
+    const origin = await AsyncStorage.getItem("origin");
     if (!accountName || !secretKey) {return;}
     const insertWithDuplicateCheck = (tx, baseAccName) => {
       let attemptCount = 0;
       const maxAttempts = 10;
       const tryInsert = (accName) => {
+        // TODO: check if item sync from server without origin, should 
+        // it be added with origin tag, if user want to add a new item which 
+        // is already in the list, should it be added with origin tag
         const existingAccount = tx.select()
           .from(schema.accounts)
           .where(and(
@@ -109,6 +115,7 @@ const useEditAccountStore = create((set, get) => ({
             issuer: issuer || null,
             secretKey,
             token: generateToken(secretKey),
+            origin: origin || null,
           })
           .run();
 
@@ -131,6 +138,7 @@ const useEditAccountStore = create((set, get) => ({
 
   insertAccounts: async(accounts) => {
     try {
+      const origin = await AsyncStorage.getItem("origin");
       db.transaction((tx) => {
         const insertWithDuplicateCheck = (baseAccName, issuer, secretKey) => {
           let attemptCount = 0;
@@ -172,6 +180,7 @@ const useEditAccountStore = create((set, get) => ({
                 issuer: issuer || null,
                 secretKey,
                 token: generateToken(secretKey),
+                origin: origin || null,
               })
               .run();
 
@@ -195,6 +204,12 @@ const useEditAccountStore = create((set, get) => ({
     db.update(schema.accounts)
       .set({deletedAt: new Date()})
       .where(eq(schema.accounts.id, id))
+      .run();
+  },
+
+  deleteAccountByOrigin: async(origin) => {
+    db.delete(schema.accounts)
+      .where(not(eq(schema.accounts.origin, origin)))
       .run();
   },
 }));
