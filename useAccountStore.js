@@ -221,6 +221,7 @@ export const useEditAccount = () => useEditAccountStore(state => ({
   insertAccount: state.insertAccount,
   insertAccounts: state.insertAccounts,
   deleteAccount: state.deleteAccount,
+  deleteAccountByOrigin: state.deleteAccountByOrigin,
 }));
 
 const useAccountSyncStore = create((set, get) => ({

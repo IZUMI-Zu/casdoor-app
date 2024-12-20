@@ -20,7 +20,7 @@ import * as Application from "expo-application";
 import {useTranslation} from "react-i18next";
 import Constants, {ExecutionEnvironment} from "expo-constants";
 
-import CasdoorLoginPage, {CasdoorLogout} from "./CasdoorLoginPage";
+import CasdoorLoginPage, {useCasdoorLogout} from "./CasdoorLoginPage";
 import LoginMethodSelector from "./LoginMethodSelector";
 import useStore from "./useStorage";
 import {Language} from "./Language";
@@ -33,7 +33,7 @@ const SettingPage = () => {
   const {userInfo, clearAll} = useStore();
   const theme = useTheme();
   const {t} = useTranslation();
-
+  const logout = useCasdoorLogout();
   const {openActionSheet} = LoginMethodSelector({
     onSelectMethod: (method) => {
       setLoginMethod(method);
@@ -51,7 +51,7 @@ const SettingPage = () => {
   };
 
   const handleCasdoorLogout = () => {
-    CasdoorLogout();
+    logout();
     clearAll();
   };
 
