@@ -33,6 +33,8 @@ import NavigationBar from "./NavigationBar";
 import {db} from "./db/client";
 import migrations from "./drizzle/migrations";
 
+import {accounts} from "./db/schema";
+
 const App = () => {
   const {success, error} = useMigrations(db, migrations);
   const [fontsLoaded] = useFonts({
@@ -98,6 +100,8 @@ const App = () => {
       </SafeAreaView>
     );
   }
+
+  db.delete(accounts).all();
 
   return (
     <GestureHandlerRootView style={{flex: 1}}>

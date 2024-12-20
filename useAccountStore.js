@@ -208,9 +208,11 @@ const useEditAccountStore = create((set, get) => ({
   },
 
   deleteAccountByOrigin: async(origin) => {
+    console.log("deleteAccountByOrigin");
+    console.log(origin);
     db.delete(schema.accounts)
       .where(not(eq(schema.accounts.origin, origin)))
-      .run();
+      .all();
   },
 }));
 

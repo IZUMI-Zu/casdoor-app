@@ -148,6 +148,9 @@ export async function syncWithCloud(db, userInfo, serverUrl, token) {
   try {
     const localAccounts = await getLocalAccounts(db);
 
+    console.log("localAccounts");
+    console.log(localAccounts);
+
     const {updatedTime, mfaAccounts: serverAccounts} = await api.getMfaAccounts(
       serverUrl,
       userInfo.owner,
@@ -155,24 +158,35 @@ export async function syncWithCloud(db, userInfo, serverUrl, token) {
       token
     );
 
+    console.log("serverAccounts");
+    console.log(serverAccounts);
+
     const mergedAccounts = mergeAccounts(localAccounts, serverAccounts, updatedTime);
+
+    console.log("mergedAccounts");
+    console.log(mergedAccounts);
 
     await updateLocalDatabase(db, mergedAccounts);
 
-    const accountsToSync = mergedAccounts.filter(account => account.deletedAt === null || account.deletedAt === undefined)
-      .map(account => ({
-        issuer: account.issuer,
-        accountName: account.accountName,
-        secretKey: account.secretKey,
-        origin: account.origin,
-      }));
+    const accountsToSync = mergedAccounts
+      .filter(account => account.deletedAt === null || account.deletedAt === undefined)
+      .map(account => {
+        const {issuer, accountName, secretKey, origin} = account;
+        const accountToSync = {issuer, accountName, secretKey};
+        if (origin !== null) {
+          accountToSync.origin = origin;
+        }
+        return accountToSync;
+      });
 
-    const serverAccountsStringified = serverAccounts.map(account => JSON.stringify({
-      issuer: account.issuer,
-      accountName: account.accountName,
-      secretKey: account.secretKey,
-      origin: account.origin,
-    }));
+    const serverAccountsStringified = serverAccounts.map(account => {
+      const {issuer, accountName, secretKey, origin} = account;
+      const accountStringified = {issuer, accountName, secretKey};
+      if (origin !== null) {
+        accountStringified.origin = origin;
+      }
+      return JSON.stringify(accountStringified);
+    });
 
     const accountsToSyncStringified = accountsToSync.map(account => JSON.stringify(account));
 

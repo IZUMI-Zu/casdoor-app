@@ -17,6 +17,7 @@ import {WebView} from "react-native-webview";
 import {Platform, SafeAreaView, StatusBar, StyleSheet, Text, TouchableOpacity} from "react-native";
 import {Portal} from "react-native-paper";
 import {useNotifications} from "react-native-notificated";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import SDK from "casdoor-react-native-sdk";
 import PropTypes from "prop-types";
 import EnterCasdoorSdkConfig from "./EnterCasdoorSdkConfig";
@@ -211,12 +212,17 @@ const styles = StyleSheet.create({
 
 export const useCasdoorLogout = () => {
   const {deleteAccountByOrigin} = useEditAccount();
+  // TODO: fix this async function call should use await to get the origin value
+  const origin = AsyncStorage.getItem("origin");
+
+  console.log("origin from useCasdoorLogout");
+  console.log(origin);
 
   const logout = () => {
     if (sdk) {
       sdk.clearState();
     }
-    deleteAccountByOrigin();
+    deleteAccountByOrigin(origin);
   };
 
   return logout;
