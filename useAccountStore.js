@@ -16,7 +16,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 
 import {db} from "./db/client";
 import * as schema from "./db/schema";
-import {and, eq, isNull, not} from "drizzle-orm";
+import {and, eq, isNull, not, or} from "drizzle-orm";
 import {create} from "zustand";
 import {generateToken} from "./totpUtil";
 import {syncWithCloud} from "./syncLogic";
@@ -208,11 +208,17 @@ const useEditAccountStore = create((set, get) => ({
   },
 
   deleteAccountByOrigin: async(origin) => {
-    console.log("deleteAccountByOrigin");
-    console.log(origin);
+    // TODO: check item sync from server without origin and with origin, should 
+    // it be added with origin tag, if user want to add a new item which 
+    // is already in the list, should it be added with origin tag
     db.delete(schema.accounts)
-      .where(not(eq(schema.accounts.origin, origin)))
-      .all();
+      .where(
+        or(
+          not(eq(schema.accounts.origin, origin)),
+          isNull(schema.accounts.origin)
+        )
+      )
+      .run();
   },
 }));
 

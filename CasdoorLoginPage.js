@@ -212,16 +212,14 @@ const styles = StyleSheet.create({
 
 export const useCasdoorLogout = () => {
   const {deleteAccountByOrigin} = useEditAccount();
-  // TODO: fix this async function call should use await to get the origin value
-  const origin = AsyncStorage.getItem("origin");
 
-  console.log("origin from useCasdoorLogout");
-  console.log(origin);
+  const logout = async() => {
+    const origin = await AsyncStorage.getItem("origin");
 
-  const logout = () => {
     if (sdk) {
       sdk.clearState();
     }
+
     deleteAccountByOrigin(origin);
   };
 
