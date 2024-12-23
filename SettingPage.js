@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import React, {useState} from "react";
-import {Dimensions, ScrollView, StyleSheet, View} from "react-native";
+import {Dimensions, ScrollView, StyleSheet, TouchableOpacity, View} from "react-native";
 import {Avatar, Button, IconButton, List, Surface, Text, useTheme} from "react-native-paper";
 import {ActionSheetProvider} from "@expo/react-native-action-sheet";
 import * as Application from "expo-application";
@@ -80,14 +80,18 @@ const SettingPage = () => {
                 />
               </View>
             ) : (
-              <Button
+              <TouchableOpacity
+                style={styles.profileCard}
                 onPress={handleCasdoorLogin}
-                icon="login"
-                style={styles.loginButton}
-                labelStyle={styles.loginButtonLabel}
               >
-                {t("settings.Sign In")}
-              </Button>
+                <Button
+                  icon="login"
+                  style={styles.loginButton}
+                  labelStyle={styles.loginButtonLabel}
+                >
+                  {t("settings.Sign In")}
+                </Button>
+              </TouchableOpacity>
             )}
           </Surface>
 
@@ -151,8 +155,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#F2F2F2",
   },
   profileCard: {
-    padding: 12,
-    marginBottom: 14,
+    padding: 10,
     borderRadius: 14,
   },
   profileInfo: {
@@ -167,7 +170,6 @@ const styles = StyleSheet.create({
   loginButton: {
     borderRadius: 8,
     alignSelf: "center",
-    paddingHorizontal: 20,
   },
   loginButtonLabel: {
     fontSize: 18,
