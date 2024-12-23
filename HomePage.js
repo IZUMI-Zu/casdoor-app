@@ -31,7 +31,7 @@ import {useImportManager} from "./ImportManager";
 import useStore from "./useStorage";
 import {calculateCountdown} from "./totpUtil";
 import {generateToken, validateSecret} from "./totpUtil";
-import {useAccountStore, useAccountSync, useEditAccount} from "./useAccountStore";
+import {useAccountSync, useAccounts, useEditAccount} from "./useAccountStore";
 
 const {width, height} = Dimensions.get("window");
 const REFRESH_INTERVAL = 10000;
@@ -55,7 +55,7 @@ export default function HomePage() {
   const swipeableRef = useRef(null);
   const {userInfo, serverUrl, token} = useStore();
   const {startSync} = useAccountSync();
-  const {accounts, refreshAccounts} = useAccountStore();
+  const {accounts} = useAccounts();
   const {setAccount, updateAccount, insertAccount, insertAccounts, deleteAccount} = useEditAccount();
   const {notify} = useNotifications();
   const {t} = useTranslation();
@@ -73,10 +73,6 @@ export default function HomePage() {
   });
 
   useEffect(() => {
-    refreshAccounts();
-  }, []);
-
-  useEffect(() => {
     setCanSync(Boolean(isConnected && userInfo && serverUrl));
   }, [isConnected, userInfo, serverUrl]);
 
@@ -85,15 +81,17 @@ export default function HomePage() {
   }, [accounts]);
 
   useEffect(() => {
-    const timer = setInterval(() => {
-      if (canSync) {
+    if (canSync) {
+      startSync(userInfo, serverUrl, token);
+
+      const timer = setInterval(() => {
         InteractionManager.runAfterInteractions(() => {
           startSync(userInfo, serverUrl, token);
-          refreshAccounts();
         });
-      }
-    }, REFRESH_INTERVAL);
-    return () => clearInterval(timer);
+      }, REFRESH_INTERVAL);
+
+      return () => clearInterval(timer);
+    }
   }, [startSync, canSync, token]);
 
   const onRefresh = async() => {
@@ -116,7 +114,6 @@ export default function HomePage() {
         });
       }
     }
-    refreshAccounts();
     setRefreshing(false);
   };
 
@@ -128,7 +125,6 @@ export default function HomePage() {
       await insertAccount();
       closeEnterAccountModal();
     }
-    refreshAccounts();
   };
 
   const handleEditAccount = (account) => {
@@ -142,7 +138,6 @@ export default function HomePage() {
     if (editingAccount) {
       setAccount({...editingAccount, accountName: newAccountName, oldAccountName: editingAccount.accountName});
       updateAccount();
-      refreshAccounts();
       setPlaceholder("");
       setEditingAccount(null);
       closeEditAccountModal();
@@ -151,7 +146,6 @@ export default function HomePage() {
 
   const onAccountDelete = async(account) => {
     deleteAccount(account.id);
-    refreshAccounts();
   };
 
   const closeEditAccountModal = () => setShowEditAccountModal(false);

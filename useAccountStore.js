@@ -20,17 +20,17 @@ import {and, eq, isNull, not, or} from "drizzle-orm";
 import {create} from "zustand";
 import {generateToken} from "./totpUtil";
 import {syncWithCloud} from "./syncLogic";
+import {useLiveQuery} from "drizzle-orm/expo-sqlite";
 
-export const useAccountStore = create((set, get) => ({
-  accounts: [],
-  refreshAccounts: () => {
-    const accounts = db.select().from(schema.accounts).where(isNull(schema.accounts.deletedAt)).all();
-    set({accounts});
-  },
-  setAccounts: (accounts) => {
-    set({accounts});
-  },
-}));
+export const useAccounts = () => {
+  const {data: accounts} = useLiveQuery(
+    db.select().from(schema.accounts).where(isNull(schema.accounts.deletedAt))
+  );
+
+  return {
+    accounts: accounts || [],
+  };
+};
 
 const useEditAccountStore = create((set, get) => ({
   account: {id: undefined, issuer: undefined, accountName: undefined, secretKey: undefined, oldAccountName: undefined},
