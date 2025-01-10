@@ -21,7 +21,7 @@ export const accounts = sqliteTable("accounts", {
   oldAccountName: text("old_account_name").default(null),
   secretKey: text("secret").notNull(),
   issuer: text("issuer").default(null),
-  token: text("token"),
+  token: text("token"), // to be deleted
   deletedAt: integer("deleted_at", {mode: "timestamp_ms"}).default(null),
   changedAt: integer("changed_at", {mode: "timestamp_ms"}).default(sql`(CURRENT_TIMESTAMP)`),
   syncAt: integer("sync_at", {mode: "timestamp_ms"}).default(null),

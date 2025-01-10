@@ -28,7 +28,7 @@ import {ActionSheetProvider} from "@expo/react-native-action-sheet";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 import "./i18n";
-import Header from "./Header";
+
 import NavigationBar from "./NavigationBar";
 import {db} from "./db/client";
 import migrations from "./drizzle/migrations";
@@ -105,7 +105,7 @@ const App = () => {
         <ActionSheetProvider>
           <NavigationContainer>
             <PaperProvider>
-              <Header />
+              {/* <Header /> */}
               <NavigationBar />
             </PaperProvider>
           </NavigationContainer>

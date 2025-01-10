@@ -27,6 +27,7 @@ import Animated, {
   withTiming
 } from "react-native-reanimated";
 import {MaterialCommunityIcons} from "@expo/vector-icons";
+import {useNavigation} from "@react-navigation/native";
 
 import SearchBar from "./SearchBar";
 import EnterAccountDetails from "./EnterAccountDetails";
@@ -77,6 +78,7 @@ export default function HomePage() {
   }, () => {
     setShowScanner(true);
   });
+  const navigation = useNavigation();
 
   useEffect(() => {
     setCanSync(Boolean(isConnected && userInfo && serverUrl));
@@ -259,6 +261,17 @@ export default function HomePage() {
     );
   };
 
+  const handleItemPress = (item) => {
+    const currentToken = generateToken(item.secretKey);
+    navigation.navigate("ItemDetailPage", {
+      item: {
+        ...item,
+        token: currentToken,
+        changedAt: item.changedAt.toISOString(),
+      },
+    });
+  };
+
   return (
     <View style={{flex: 1}}>
       <SearchBar onSearch={handleSearch} />
@@ -339,6 +352,7 @@ export default function HomePage() {
                     </CountdownCircleTimer>
                   </View>
                 )}
+                onPress={() => handleItemPress(item)}
               />
             </Swipeable>
           </GestureHandlerRootView>
