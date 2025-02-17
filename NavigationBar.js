@@ -20,6 +20,7 @@ import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import HomeStackNavigator from "./HomeStackNavigator";
 import {CommonActions} from "@react-navigation/native";
 import SettingsStackNavigator from "./SettingsStackNavigator";
+import PasswordStackNavigator from "./PasswordStackNavigator";
 import {useTranslation} from "react-i18next";
 
 const Tab = createBottomTabNavigator();
@@ -82,6 +83,16 @@ export default function NavigationBar() {
           tabBarLabel: t("navBar.Home"),
           tabBarIcon: ({color, size}) => {
             return <Icon name="home" size={size} color={color} />;
+          },
+        }}
+      />
+      <Tab.Screen
+        name="Passwords"
+        component={PasswordStackNavigator}
+        options={{
+          tabBarLabel: t("navBar.Passwords"),
+          tabBarIcon: ({color, size}) => {
+            return <Icon name="key-variant" size={size} color={color} />;
           },
         }}
       />

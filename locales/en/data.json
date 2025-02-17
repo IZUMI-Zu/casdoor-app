@@ -9,7 +9,8 @@
     "delete": "Delete",
     "edit": "Edit",
     "login": "Login",
-    "logout": "Logout"
+    "logout": "Logout",
+    "loading": "Loading..."
   },
   "api": {
     "Request timed out": "Request timed out"
@@ -67,7 +68,8 @@
   },
   "navBar": {
     "Home": "Home",
-    "Settings": "Settings"
+    "Settings": "Settings",
+    "Passwords": "Passwords"
   },
   "qrScanner": {
     "Requesting permissions": "Requesting permissions",
@@ -106,5 +108,35 @@
     "notSpecified": "Not specified",
     "neverSynced": "Never synced",
     "copied": "Copied"
+  },
+  "password": {
+    "search": "Search passwords",
+    "addNewPassword": "Add New Password",
+    "title": "Title",
+    "username": "Username",
+    "password": "Password",
+    "website": "Website",
+    "category": "Category",
+    "notes": "Notes",
+    "requiredFields": "Title, username, and password are required",
+    "addFailed": "Failed to add password",
+    "unlockVault": "Unlock Password Vault",
+    "initializeVault": "Initialize Password Vault",
+    "initializeDescription": "Create a master password to protect your passwords. Make sure to remember it as it cannot be recovered.",
+    "masterPassword": "Master Password",
+    "masterPasswordTooShort": "Master password must be at least 8 characters long",
+    "wrongMasterPassword": "Wrong master password",
+    "initializationFailed": "Failed to initialize password vault",
+    "unlock": "Unlock",
+    "initialize": "Initialize",
+    "application": "Application",
+    "url": "Signin URL",
+    "details": "Password Details",
+    "noApplications": "No applications available",
+    "selectApplication": "Select an application",
+    "search": "Search applications",
+    "noApplicationsFound": "No applications found",
+    "failedToFetchApplications": "Failed to fetch applications",
+    "invalidUrl": "Please enter a valid URL"
   }
 }

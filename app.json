@@ -61,7 +61,8 @@
         {
           "userTrackingPermission": "This identifier will be used to check which item is created by the user."
         }
-      ]
+      ],
+      "expo-sqlite"
     ],
     "owner": "casdoor"
   }

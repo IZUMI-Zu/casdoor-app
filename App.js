@@ -33,7 +33,17 @@ import NavigationBar from "./NavigationBar";
 import {db} from "./db/client";
 import migrations from "./drizzle/migrations";
 
+import {
+  ReanimatedLogLevel,
+  configureReanimatedLogger
+} from "react-native-reanimated";
+
 const App = () => {
+
+  configureReanimatedLogger({
+    level: ReanimatedLogLevel.warn,
+    strict: false, // Reanimated runs in strict mode by default
+  });
   const {success, error} = useMigrations(db, migrations);
   const [fontsLoaded] = useFonts({
     Lato_700Bold,

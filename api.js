@@ -122,3 +122,23 @@ export const validateToken = async(serverUrl, token, timeoutMs = TIMEOUT_MS) => 
 
   return !!(res.sub && res.name && res.preferred_username);
 };
+
+export const getApplication = async(serverUrl, organizationName, token, timeoutMs = TIMEOUT_MS) => {
+  const res = await fetchWithTimeout(
+    `${serverUrl}/api/get-organization-applications?owner=admin&organization=${organizationName}`,
+    {
+      method: "GET",
+      token,
+    },
+    timeoutMs
+  );
+
+  // Extract application names from the response data array
+  const applications = res.data ? res.data.map((app) => {
+    return {
+      name: app.name,
+    };
+  }) : [];
+
+  return applications;
+};
