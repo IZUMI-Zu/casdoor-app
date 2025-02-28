@@ -4,7 +4,7 @@ import journal from "./meta/_journal.json";
 import m0000 from "./0000_smooth_owl.sql";
 import m0001 from "./0001_dear_scream.sql";
 import m0002 from "./0002_rare_ben_grimm.sql";
-import m0003 from "./0003_useful_tattoo.sql";
+import m0003 from "./0003_certain_tomorrow_man.sql";
 
 export default {
   journal,

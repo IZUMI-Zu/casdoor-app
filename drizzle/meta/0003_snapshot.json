@@ -1,7 +1,7 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "67a7811e-dcc6-40ac-b4d2-b72c3ed7d631",
+  "id": "d7a3b7e2-8436-4b03-83a0-238099d5f898",
   "prevId": "98e0dfc5-cfb7-45a6-93ff-fe63a96c9e33",
   "tables": {
     "accounts": {
@@ -130,8 +130,8 @@
           "notNull": true,
           "autoincrement": false
         },
-        "url": {
-          "name": "url",
+        "signin_url": {
+          "name": "signin_url",
           "type": "text",
           "primaryKey": false,
           "notNull": false,
@@ -172,12 +172,12 @@
         }
       },
       "indexes": {
-        "passwords_application_username_url_unique": {
-          "name": "passwords_application_username_url_unique",
+        "passwords_application_username_signin_url_unique": {
+          "name": "passwords_application_username_signin_url_unique",
           "columns": [
             "application",
             "username",
-            "url"
+            "signin_url"
           ],
           "isUnique": true
         }

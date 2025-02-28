@@ -36,11 +36,11 @@ export const passwords = sqliteTable("passwords", {
   application: text("application").notNull(),
   username: text("username").notNull(),
   password: text("password").notNull(),
-  url: text("url").default(null),
+  signinUrl: text("signin_url").default(null),
   deletedAt: integer("deleted_at", {mode: "timestamp_ms"}).default(null),
   changedAt: integer("changed_at", {mode: "timestamp_ms"}).default(sql`(CURRENT_TIMESTAMP)`),
   syncAt: integer("sync_at", {mode: "timestamp_ms"}).default(null),
   origin: text("origin").default(null),
 }, (passwords) => ({
-  unq: unique().on(passwords.application, passwords.username, passwords.url),
+  unq: unique().on(passwords.application, passwords.username, passwords.signinUrl),
 }));

@@ -8,7 +8,7 @@ import {
   Text
 } from "react-native-paper";
 import {useTranslation} from "react-i18next";
-import usePasswordStore, {usePasswords} from "./usePasswordStore";
+import usePasswordStore, {usePasswordSync, usePasswords} from "./usePasswordStore";
 import {GestureHandlerRootView} from "react-native-gesture-handler";
 import Swipeable from "react-native-gesture-handler/ReanimatedSwipeable";
 import {FlashList} from "@shopify/flash-list";
@@ -20,12 +20,13 @@ import {MaterialCommunityIcons} from "@expo/vector-icons";
 import {useNotifications} from "react-native-notificated";
 import SearchBar from "./SearchBar";
 import {PasswordFormDialog, PasswordViewDialog} from "./PasswordDialogs";
+import useStore from "./useStorage";
 
 const EMPTY_PASSWORD = {
   application: "",
   username: "",
   password: "",
-  url: "",
+  signinUrl: "",
 };
 
 const PasswordManager = () => {
@@ -49,6 +50,9 @@ const PasswordManager = () => {
 
   const {notify} = useNotifications();
 
+  const {userInfo, token, serverUrl} = useStore();
+  const {isSyncing, startSync} = usePasswordSync();
+
   const handleSearch = (query) => {
     setSearchQuery(query);
   };
@@ -58,7 +62,7 @@ const PasswordManager = () => {
     return (
       item.application.toLowerCase().includes(searchLower) ||
       item.username.toLowerCase().includes(searchLower) ||
-      (item.url && item.url.toLowerCase().includes(searchLower))
+      (item.signinUrl && item.signinUrl.toLowerCase().includes(searchLower))
     );
   });
 
@@ -86,7 +90,7 @@ const PasswordManager = () => {
 
   const handleSubmit = async(type) => {
     const data = type === "add" ? newPassword : editingPassword;
-    if (!data.url || !data.username || !data.password) {
+    if (!data.signinUrl || !data.username || !data.password) {
       notify("error", {
         params: {
           title: t("common.error"),
@@ -200,7 +204,7 @@ const PasswordManager = () => {
             title={
               <View style={{justifyContent: "center", paddingLeft: 0, paddingTop: 6}}>
                 <Text variant="titleMedium" numberOfLines={1}>
-                  {item.application + " - " + item.url}
+                  {item.application + " - " + item.signinUrl}
                 </Text>
               </View>
             }
@@ -234,6 +238,35 @@ const PasswordManager = () => {
     setEditingPassword(EMPTY_PASSWORD);
   };
 
+  const handleSync = async() => {
+    if (!userInfo || !token || !serverUrl) {
+      notify("error", {
+        params: {
+          title: t("common.error"),
+          description: t("password.loginRequired"),
+        },
+      });
+      return;
+    }
+
+    const error = await startSync(userInfo, serverUrl, token);
+    if (error) {
+      notify("error", {
+        params: {
+          title: t("common.error"),
+          description: error,
+        },
+      });
+    } else if (!error) {
+      notify("success", {
+        params: {
+          title: t("common.success"),
+          description: t("password.syncSuccess"),
+        },
+      });
+    }
+  };
+
   return (
     <View style={{flex: 1}}>
       <SearchBar onSearch={handleSearch} />
@@ -247,25 +280,47 @@ const PasswordManager = () => {
         ItemSeparatorComponent={() => <Divider />}
       />
 
-      <TouchableOpacity
-        style={{
-          position: "absolute",
-          bottom: 30,
-          right: 30,
-          width: 70,
-          height: 70,
-          borderRadius: 35,
-          backgroundColor: "#E6DFF3",
-          alignItems: "center",
-          justifyContent: "center",
-        }}
-        onPress={() => {
-          setNewPassword(EMPTY_PASSWORD);
-          setShowAddDialog(true);
-        }}
-      >
-        <IconButton icon="plus" size={40} color={"white"} />
-      </TouchableOpacity>
+      <View style={{flexDirection: "row", position: "absolute", bottom: 30, right: 30}}>
+        {userInfo && token && (
+          <TouchableOpacity
+            style={{
+              width: 70,
+              height: 70,
+              borderRadius: 35,
+              backgroundColor: "#E6DFF3",
+              alignItems: "center",
+              justifyContent: "center",
+              marginRight: 15,
+            }}
+            onPress={handleSync}
+            disabled={isSyncing}
+          >
+            <IconButton
+              icon={isSyncing ? "sync" : "cloud-sync"}
+              size={40}
+              color={"white"}
+              animated={isSyncing}
+            />
+          </TouchableOpacity>
+        )}
+
+        <TouchableOpacity
+          style={{
+            width: 70,
+            height: 70,
+            borderRadius: 35,
+            backgroundColor: "#E6DFF3",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+          onPress={() => {
+            setNewPassword(EMPTY_PASSWORD);
+            setShowAddDialog(true);
+          }}
+        >
+          <IconButton icon="plus" size={40} color={"white"} />
+        </TouchableOpacity>
+      </View>
 
       <Portal>
         <PasswordFormDialog

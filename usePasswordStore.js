@@ -3,6 +3,7 @@ import {useLiveQuery} from "drizzle-orm/expo-sqlite";
 import {create} from "zustand";
 import {db} from "./db/client";
 import * as schema from "./db/schema";
+import {syncPasswordsWithCloud} from "./passwordSyncLogic";
 
 export const usePasswords = () => {
   const {data: passwords} = useLiveQuery(
@@ -34,7 +35,7 @@ const usePasswordStore = create((set, get) => ({
         application: passwordData.application,
         username: passwordData.username,
         password: passwordData.password,
-        url: passwordData.url || null,
+        url: passwordData.signinUrl || null,
       });
 
       return true;
@@ -55,8 +56,8 @@ const usePasswordStore = create((set, get) => ({
       if (passwordData.password) {
         updateData.password = passwordData.password;
       }
-      if (passwordData.url !== undefined) {
-        updateData.url = passwordData.url;
+      if (passwordData.signinUrl !== undefined) {
+        updateData.url = passwordData.signinUrl;
       }
       await db.update(schema.passwords)
         .set({...updateData, changedAt: new Date()})
@@ -100,6 +101,32 @@ const usePasswordStore = create((set, get) => ({
       return null;
     }
   },
+}));
+
+const usePasswordSyncStore = create((set, get) => ({
+  isSyncing: false,
+  syncError: null,
+  startSync: async(userInfo, serverUrl, token) => {
+    if (get().isSyncing) {return;}
+
+    set({isSyncing: true, syncError: null});
+    try {
+      await syncPasswordsWithCloud(db, userInfo, serverUrl, token);
+    } catch (error) {
+      set({syncError: error.message});
+    } finally {
+      set({isSyncing: false});
+    }
+    return get().syncError;
+  },
+  clearSyncError: () => set({syncError: null}),
+}));
+
+export const usePasswordSync = () => usePasswordSyncStore(state => ({
+  isSyncing: state.isSyncing,
+  syncError: state.syncError,
+  startSync: state.startSync,
+  clearSyncError: state.clearSyncError,
 }));
 
 export default usePasswordStore;

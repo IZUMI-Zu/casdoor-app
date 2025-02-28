@@ -142,3 +142,44 @@ export const getApplication = async(serverUrl, organizationName, token, timeoutM
 
   return applications;
 };
+
+export const getPasswordAccounts = async(serverUrl, owner, name, token, timeoutMs = TIMEOUT_MS) => {
+  const res = await fetchWithTimeout(
+    `${serverUrl}/api/get-user?id=${owner}/${encodeURIComponent(name)}`,
+    {
+      method: "GET",
+      token,
+    },
+    timeoutMs
+  );
+
+  return {
+    updatedTime: res.data.updatedTime,
+    passwordAccounts: res.data.managedAccounts || [],
+  };
+};
+
+export const updatePasswordAccounts = async(serverUrl, owner, name, newPasswordAccounts, token, timeoutMs = TIMEOUT_MS) => {
+  const userData = await fetchWithTimeout(
+    `${serverUrl}/api/get-user?id=${owner}/${encodeURIComponent(name)}`,
+    {
+      method: "GET",
+      token,
+    },
+    timeoutMs
+  );
+
+  userData.data.managedAccounts = newPasswordAccounts;
+
+  const res = await fetchWithTimeout(
+    `${serverUrl}/api/update-user?id=${owner}/${encodeURIComponent(name)}`,
+    {
+      method: "POST",
+      token,
+      body: JSON.stringify(userData.data),
+    },
+    timeoutMs
+  );
+
+  return {status: res.status, data: res.data};
+};

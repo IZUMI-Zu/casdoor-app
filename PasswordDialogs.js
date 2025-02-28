@@ -113,8 +113,8 @@ export const PasswordViewDialog = ({password, visible, onDismiss}) => {
           />
           <Field
             label={t("password.url")}
-            value={password?.url}
-            fieldName="url"
+            value={password?.signinUrl}
+            fieldName="signinUrl"
           />
           <Field
             label={t("password.username")}
@@ -182,15 +182,15 @@ export const PasswordFormDialog = ({
 
   const handleSubmit = async() => {
     // Validate URL format if provided
-    if (data.url) {
-      if (!isValidUrl(data.url)) {
+    if (data.signinUrl) {
+      if (!isValidUrl(data.signinUrl)) {
         setUrlError(t("password.invalidUrl"));
         return;
       }
 
       // Format the URL with https:// if it doesn't have a protocol
-      if (!data.url.match(/^[a-zA-Z]+:\/\//)) {
-        onChangeData({...data, url: "https://" + data.url});
+      if (!data.signinUrl.match(/^[a-zA-Z]+:\/\//)) {
+        onChangeData({...data, signinUrl: "https://" + data.signinUrl});
       }
     }
 
@@ -201,13 +201,13 @@ export const PasswordFormDialog = ({
     }
   };
 
-  const isValidUrl = (url) => {
+  const isValidUrl = (signinUrl) => {
     try {
       // If URL doesn't have a protocol, add https:// prefix for validation
-      if (url && !url.match(/^[a-zA-Z]+:\/\//)) {
-        url = "https://" + url;
+      if (signinUrl && !signinUrl.match(/^[a-zA-Z]+:\/\//)) {
+        signinUrl = "https://" + signinUrl;
       }
-      new URL(url);
+      new URL(signinUrl);
       return true;
     } catch (e) {
       return false;
@@ -293,10 +293,10 @@ export const PasswordFormDialog = ({
           <TextInput
             mode="outlined"
             label={t("password.url")}
-            value={data.url}
+            value={data.signinUrl}
             onChangeText={(text) => {
               setUrlError("");
-              onChangeData({...data, url: text});
+              onChangeData({...data, signinUrl: text});
             }}
             placeholder="https://example.com"
             keyboardType="url"

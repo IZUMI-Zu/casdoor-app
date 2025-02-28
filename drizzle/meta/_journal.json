@@ -1,5 +1,5 @@
 {
-  "version": "7",
+  "version": "6",
   "dialect": "sqlite",
   "entries": [
     {
@@ -26,8 +26,8 @@
     {
       "idx": 3,
       "version": "6",
-      "when": 1739806369278,
-      "tag": "0003_useful_tattoo",
+      "when": 1740735755431,
+      "tag": "0003_certain_tomorrow_man",
       "breakpoints": true
     }
   ]
