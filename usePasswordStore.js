@@ -22,7 +22,7 @@ const usePasswordStore = create((set, get) => ({
     application: undefined,
     username: undefined,
     password: undefined,
-    url: undefined,
+    sign: undefined,
   },
 
   setCurrentPassword: (password) => {
@@ -35,7 +35,7 @@ const usePasswordStore = create((set, get) => ({
         application: passwordData.application,
         username: passwordData.username,
         password: passwordData.password,
-        url: passwordData.signinUrl || null,
+        signinUrl: passwordData.signinUrl || null,
       });
 
       return true;
@@ -57,7 +57,7 @@ const usePasswordStore = create((set, get) => ({
         updateData.password = passwordData.password;
       }
       if (passwordData.signinUrl !== undefined) {
-        updateData.url = passwordData.signinUrl;
+        updateData.signinUrl = passwordData.signinUrl;
       }
       await db.update(schema.passwords)
         .set({...updateData, changedAt: new Date()})

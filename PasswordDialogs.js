@@ -304,6 +304,7 @@ export const PasswordFormDialog = ({
             autoCorrect={false}
             error={!!urlError}
             style={styles.input}
+            returnKeyType="next"
           />
           {urlError ? <Text style={styles.errorText}>{urlError}</Text> : null}
 
@@ -315,6 +316,7 @@ export const PasswordFormDialog = ({
             autoCapitalize="none"
             autoCorrect={false}
             style={styles.input}
+            returnKeyType="next"
           />
 
           <TextInput
@@ -326,6 +328,7 @@ export const PasswordFormDialog = ({
             autoCapitalize="none"
             autoCorrect={false}
             style={styles.input}
+            returnKeyType="done"
             right={
               <TextInput.Icon
                 icon={passwordVisible ? "eye-off" : "eye"}

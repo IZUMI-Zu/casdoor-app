@@ -1,5 +1,5 @@
 import React, {useRef, useState} from "react";
-import {TouchableOpacity, View} from "react-native";
+import {RefreshControl, TouchableOpacity, View} from "react-native";
 import {
   Divider,
   IconButton,
@@ -40,6 +40,7 @@ const PasswordManager = () => {
   const [newPassword, setNewPassword] = useState(EMPTY_PASSWORD);
   const [showEditDialog, setShowEditDialog] = useState(false);
   const [editingPassword, setEditingPassword] = useState(EMPTY_PASSWORD);
+  const [refreshing, setRefreshing] = useState(false);
 
   const {
     addPassword,
@@ -51,7 +52,7 @@ const PasswordManager = () => {
   const {notify} = useNotifications();
 
   const {userInfo, token, serverUrl} = useStore();
-  const {isSyncing, startSync} = usePasswordSync();
+  const {startSync} = usePasswordSync();
 
   const handleSearch = (query) => {
     setSearchQuery(query);
@@ -267,6 +268,14 @@ const PasswordManager = () => {
     }
   };
 
+  const onRefresh = async() => {
+    setRefreshing(true);
+    if (userInfo && token && serverUrl) {
+      await handleSync();
+    }
+    setRefreshing(false);
+  };
+
   return (
     <View style={{flex: 1}}>
       <SearchBar onSearch={handleSearch} />
@@ -274,36 +283,16 @@ const PasswordManager = () => {
         data={searchQuery.trim() !== "" ? filteredPasswords : passwords}
         keyExtractor={(item) => `${item.id}`}
         estimatedItemSize={80}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }
         renderItem={({item}) => (
           <ListItem item={item} />
         )}
         ItemSeparatorComponent={() => <Divider />}
       />
 
-      <View style={{flexDirection: "row", position: "absolute", bottom: 30, right: 30}}>
-        {userInfo && token && (
-          <TouchableOpacity
-            style={{
-              width: 70,
-              height: 70,
-              borderRadius: 35,
-              backgroundColor: "#E6DFF3",
-              alignItems: "center",
-              justifyContent: "center",
-              marginRight: 15,
-            }}
-            onPress={handleSync}
-            disabled={isSyncing}
-          >
-            <IconButton
-              icon={isSyncing ? "sync" : "cloud-sync"}
-              size={40}
-              color={"white"}
-              animated={isSyncing}
-            />
-          </TouchableOpacity>
-        )}
-
+      <View style={{position: "absolute", bottom: 30, right: 30}}>
         <TouchableOpacity
           style={{
             width: 70,
